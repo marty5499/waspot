@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <script src="/js/webRTC.js"></script>
+  <script src="/js/adapter.js"></script>
+  <script src="/js/oo/Camera.js"></script>
+  <script src="/js/oo/ImageFilter.js"></script>
+  <script src="/js/oo/Hotspot.js"></script>
+  <script src="/js/opencv.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+</head>
+
+<body>
+  <script type="text/javascript" src="/budo/livereload.js" async="" defer=""></script>
+  <h1>Hotspot section detect</h1>
+  <canvas id='c1' width=400 height=300></canvas>
+  <script>
+  var canvasId = 'c1';
+  var bs, work = false;
+  var filter = new ImageFilter(cv);
+  var canvas1 = document.getElementById('c1');
+  var ctx = canvas1.getContext("2d");
+  var tracking = new Hotspot(canvas1, canvas1, true,
+    20, 20, 200, 20, 200, 200, 20, 200);
+  tracking.setCvProcess(filter);
+  var inside = false;
+  var lastPos;
+
+  tracking.inside(function (pos) {
+    inside = true;
+    lastPos = pos;
+    drawSmile(ctx, pos);
+    tracking.setStroke(3, "#00FF00");
+  });
+
+  tracking.outside(function (pos) {
+    inside = false;
+    tracking.setStroke(3, "#FF0000");
+  });
+  var camIdx = location.hash == '' ? 0 : location.hash.substring(1);
+  new Camera(camIdx).onCanvas(canvasId, function (canvas) {
+    tracking.scan();
+    if(inside){
+      drawSmile(ctx, lastPos);
+    }
+  });
+
+  setTimeout(
+    function start() {
+      tracking.start();
+      tracking.setStroke(3, "#FF0000");
+      console.log("start...");
+    }, 3000);
+
+
+
+  function drawSmile(context, pos) {
+    var centerX = pos.x;
+    var centerY = pos.y;
+    var radius = pos.radius;
+    var eyeRadius = radius / 10;
+    var eyeXOffset = radius / 3;
+    var eyeYOffset = radius / 3.5;
+    // draw the face circle
+    context.beginPath();
+    context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+    context.lineWidth = 5;
+    context.strokeStyle = 'red';
+    //context.stroke();
+    // draw the eyes
+    context.beginPath();
+    var eyeX = centerX - eyeXOffset;
+    var eyeY = centerY - eyeXOffset;
+    context.arc(eyeX, eyeY, eyeRadius, 0, 2 * Math.PI, false);
+    var eyeX = centerX + eyeXOffset;
+    context.arc(eyeX, eyeY, eyeRadius, 0, 2 * Math.PI, false);
+    context.fillStyle = 'red';
+    context.fill();
+    // draw the mouth
+    context.beginPath();
+    context.arc(centerX, centerY, radius / 2, 0, Math.PI, false);
+    context.stroke();
+  }
+  </script>
+</body>
+
+</html>

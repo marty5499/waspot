@@ -1,0 +1,74 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="/js/webRTC.js"></script>
+  <script src="/js/adapter.js"></script>
+  <script src="/js/oo/Camera.js"></script>
+  <script src="/js/oo/ImageFilter.js"></script>
+  <script src="/js/opencv.js"></script>
+</head>
+
+<body>
+  <h1>OpenCV Demo</h1>
+  <canvas id='c1' width=480 height=320></canvas>
+  <canvas id='c2' width=480 height=320></canvas>
+  <script>
+  var canvasId = 'c1';
+  var bs, work = false;
+  var filter = new ImageFilter(cv);
+  var camIdx = location.hash == '' ? 0 : location.hash.substring(1);
+  new Camera(camIdx).onCanvas(canvasId, function (canvas) {
+    test2(canvasId);
+  });
+
+  function test1(id) {
+    //new Camera(0).onCanvas(canvasId, function (canvas) {
+    let src = cv.imread(id);
+    let dstx = new cv.Mat();
+    cv.cvtColor(src, dstx, cv.COLOR_BGR2HSV, 0);
+    cv.imshow(canvasId, dstx);
+    dstx.delete();
+    src.delete();
+  }
+
+  //http://blog.topspeedsnail.com/archives/2112
+  //H:色相 0~179 , S：飽和度 0~255 ,V：明度 0~255
+  function test2(id) {
+    let src = cv.imread(id);
+    let dstx = new cv.Mat();
+    cv.cvtColor(src, src, cv.COLOR_RGB2HSV, 0);
+    //green:41-59 ,red:120-125 , yellow:80-100
+    let blue = {
+      "low": [110, 50, 50, 0],
+      "high": [130, 255, 255, 255]
+    }
+    let green = {
+      "low": [50, 0, 0, 0],
+      "high": [70, 255, 255, 255]
+    }
+    let red = {
+      "low": [0, 100, 30, 0],
+      "high": [180, 255, 255, 255]
+    }
+    let yellow = {
+      "low": [15, 0, 0, 0],
+      "high": [25, 255, 255, 255]
+    }
+    let range = blue;
+    let low = new cv.Mat(src.rows, src.cols, src.type(),
+      range.low);
+    let high = new cv.Mat(src.rows, src.cols, src.type(),
+      range.high);
+    cv.inRange(src, low, high, dstx);
+    cv.imshow('c2', dstx);
+    low.delete();
+    high.delete();
+    src.delete();
+    dstx.delete();
+  }
+  </script>
+</body>
+
+</html>

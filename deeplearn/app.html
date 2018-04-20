@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>WebRTC + deeplearn</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta id="theme-color" name="theme-color" content="#ffffff">
+  <script src="/js/jquery.js"></script>
+  <script src="https://blockly.webduino.io/components/webduino-js/dist/webduino-all.min.js"></script>
+  <script src="https://blockly.webduino.io/lib/webduino-blockly.js"></script>
+  <script src="/dist/build.js"></script>
+  <script src="/js/oo/Camera.js"></script>
+</head>
+
+<body>
+  <div id="container">
+    <video hidden style='width:227px'></video>
+    <canvas id='c1' width=320 height=240 style='width:227px;display:none'></canvas>
+  </div>
+  <h1 id='msg'> 初始化，請稍候... </h1>
+  <script>
+  var video = document.querySelector('video');
+  var canvas = document.querySelector('canvas');
+  var camIdx = location.hash == '' ? 0 : location.hash.substring(1);
+  new Camera(camIdx).onCanvas('c1', function (canvas) {
+    var ctx = canvas.getContext('2d');
+  });
+
+
+  window.addEventListener('load', () => {
+    window.imgClassifier = new ImgClassifier(canvas, {
+      0: {
+        'name': '',
+        'url': 'imageClass/bg.json'
+      },
+      1: {
+        'name': 'Bit',
+        'url': 'imageClass/bit.json'
+      },
+      2: {
+        'name': 'UNO32',
+        'url': 'imageClass/uno32.json'
+      }
+    });
+
+    imgClassifier.onLoad(function (msgText) {
+      msg.innerHTML = msgText;
+    });
+    var lastName = '';
+    imgClassifier.onDetect(
+      function (name, confidences) {
+        if (name != '' && confidences > 0.8) {
+          if (name == lastName) {
+            return;
+          }
+          lastName = name;
+          console.log("name:", name, " =>", confidences);
+          msg.innerHTML = name + '<br> 信心指數 ' + confidences * 100 + " %";
+          speak('這是 ' + name);
+        } else {
+          msg.innerHTML = ' 檢測中... ';
+          canvas.style.display = '';
+        }
+      }, 1000);
+  });
+  </script>
+</body>
+
+</html>

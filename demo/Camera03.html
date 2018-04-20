@@ -1,0 +1,49 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="/js/oo/Camera.js"></script>
+</head>
+
+<body>
+  <h1>Camera to Canvas Demo</h1>
+  <canvas id='c1' width=800 height=600></canvas>
+  <script>
+  var camIdx = location.hash == '' ? 0 : location.hash.substring(1);
+  new Camera(camIdx).onCanvas('c1', function (canvas) {
+    var ctx = canvas.getContext('2d');
+    drawSmile(ctx, { x: 200, y: 150, radius: 120 });
+  });
+
+  function drawSmile(context, pos) {
+    var centerX = pos.x;
+    var centerY = pos.y;
+    var radius = pos.radius;
+    var eyeRadius = radius / 6;
+    var eyeXOffset = radius / 2;
+    var eyeYOffset = radius / 2.5;
+    // draw the face circle
+    context.beginPath();
+    context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+    context.lineWidth = 5;
+    context.strokeStyle = 'red';
+    //context.stroke();
+    // draw the eyes
+    context.beginPath();
+    var eyeX = centerX - eyeXOffset;
+    var eyeY = centerY - eyeXOffset;
+    context.arc(eyeX, eyeY, eyeRadius, 0, 2 * Math.PI, false);
+    var eyeX = centerX + eyeXOffset;
+    context.arc(eyeX, eyeY, eyeRadius, 0, 2 * Math.PI, false);
+    context.fillStyle = 'red';
+    context.fill();
+    // draw the mouth
+    context.beginPath();
+    context.arc(centerX, centerY, radius / 2, 0, Math.PI, false);
+    context.stroke();
+  }
+  </script>
+</body>
+
+</html>
