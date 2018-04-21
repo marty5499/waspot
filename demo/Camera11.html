@@ -14,7 +14,7 @@
   <h1>OpenCV Demo</h1>
   <canvas id='c1' width=480 height=320></canvas>
   <canvas id='c2' width=480 height=320></canvas>
-  <div>
+  <div>Lower
     <input id='a1' type="range" min="1" max="255" value="50" oninput="showVal(this)">
     <span id='a1m'>50</span>
     <input id='a2' type="range" min="1" max="255" value="50" oninput="showVal(this)">
@@ -22,7 +22,7 @@
     <input id='a3' type="range" min="1" max="255" value="50" oninput="showVal(this)">
     <span id='a3m'>50</span>
   </div>
-  <div>
+  <div>Higher
     <input id='b1' type="range" min="1" max="180" value="150" oninput="showVal(this)">
     <span id='b1m'>150</span>
     <input id='b2' type="range" min="1" max="255" value="150" oninput="showVal(this)">
@@ -39,7 +39,7 @@
     test2(canvasId);
   });
 
-  vColor = {"a1m":"1","a2m":"1","a3m":"124","b1m":"71","b2m":"255","b3m":"255"};
+  vColor = {"a1m":"18","a2m":"1","a3m":"83","b1m":"31","b2m":"255","b3m":"248"};
 
   function showVal(ele) {
     document.getElementById(ele.id + 'm').innerHTML = ele.value;
@@ -104,8 +104,8 @@
     let high = new cv.Mat(src.rows, src.cols, src.type(),
       range.high);
     cv.inRange(src, low, high, dstx);
-    dstx = filter.erosion(dstx,5);
-    dstx = filter.dilation(dstx, 10);
+    dstx = filter.erosion(dstx,15);
+    dstx = filter.dilation(dstx, 50);
     cv.imshow('c2', dstx);
     low.delete();
     high.delete();
