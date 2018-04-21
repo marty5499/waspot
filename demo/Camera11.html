@@ -14,6 +14,22 @@
   <h1>OpenCV Demo</h1>
   <canvas id='c1' width=480 height=320></canvas>
   <canvas id='c2' width=480 height=320></canvas>
+  <div>
+    <input id='a1' type="range" min="1" max="255" value="50" oninput="showVal(this)">
+    <span id='a1m'>50</span>
+    <input id='a2' type="range" min="1" max="255" value="50" oninput="showVal(this)">
+    <span id='a2m'>50</span>
+    <input id='a3' type="range" min="1" max="255" value="50" oninput="showVal(this)">
+    <span id='a3m'>50</span>
+  </div>
+  <div>
+    <input id='b1' type="range" min="1" max="180" value="150" oninput="showVal(this)">
+    <span id='b1m'>150</span>
+    <input id='b2' type="range" min="1" max="255" value="150" oninput="showVal(this)">
+    <span id='b2m'>150</span>
+    <input id='b3' type="range" min="1" max="255" value="150" oninput="showVal(this)">
+    <span id='b3m'>150</span>
+  </div>
   <script>
   var canvasId = 'c1';
   var bs, work = false;
@@ -22,6 +38,16 @@
   new Camera(camIdx).onCanvas(canvasId, function (canvas) {
     test2(canvasId);
   });
+
+  vColor = { "a1m": "1", "a2m": "170", "a3m": "124", "b1m": "71", "b2m": "255", "b3m": "255" };
+
+  function showVal(ele) {
+    console.log(ele.id, ele.value);
+    document.getElementById(ele.id + 'm').innerHTML = ele.value;
+    vColor[ele.id + 'm'] = ele.value;
+    console.log(JSON.stringify(vColor));
+  }
+
 
   function test1(id) {
     //new Camera(0).onCanvas(canvasId, function (canvas) {
@@ -41,7 +67,7 @@
     cv.cvtColor(src, src, cv.COLOR_RGB2HSV, 0);
     //green:41-59 ,red:120-125 , yellow:80-100
     let blue = {
-      "low": [110, 50, 50, 0],
+      "low": [, 50, 50, 0],
       "high": [130, 255, 255, 255]
     }
     let green = {
@@ -53,10 +79,13 @@
       "high": [180, 255, 255, 255]
     }
     let yellow = {
-      "low": [15, 0, 0, 0],
-      "high": [25, 255, 255, 255]
+      "low": [0, 150, 0, 0],
+      "high": [255, 250, 255, 255]
     }
-    let range = blue;
+    let range = {
+      "low": [parseFloat(vColor.a1m), parseFloat(vColor.a2m), parseFloat(vColor.a3m), 0],
+      "high": [parseFloat(vColor.b1m), parseFloat(vColor.b2m), parseFloat(vColor.b3m), 255]
+    };
     let low = new cv.Mat(src.rows, src.cols, src.type(),
       range.low);
     let high = new cv.Mat(src.rows, src.cols, src.type(),
