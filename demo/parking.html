@@ -1,0 +1,68 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="/js/oo/Camera.js"></script>
+  <script src="/js/oo/ImageFilter.js"></script>
+  <script src="/js/oo/Hotspot.js"></script>
+  <script src="/js/opencv.js"></script>
+  <script src="https://blocklypro.webduino.io/components/jquery/dist/jquery.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js"></script>
+</head>
+
+<body>
+  <h1>Hotspot section detect</h1>
+  <canvas id='c1' width=400 height=300></canvas>
+  <script>
+  var canvasId = 'c1';
+  var filter = new ImageFilter(cv);
+  var canvas1 = document.getElementById('c1');
+
+  var tracking = new Hotspot(canvas1, canvas1, true, 120, 120, 200, 120, 200, 200, 120, 200);
+  tracking.setCvProcess(filter);
+
+  tracking.inside(function (pos) {
+    tracking.setStroke(3, "#00FF00");
+    matrix.on('007e425a5a427e00');
+
+  });
+
+  tracking.outside(function (pos) {
+    matrix.on('ff818181818181ff');
+    tracking.setStroke(3, "#FF0000");
+  });
+
+  var camIdx = location.hash == '' ? 0 : location.hash.substring(1);
+  new Camera(camIdx).onCanvas(canvasId, function (canvas) {
+    tracking.scan();
+  });
+
+  setTimeout(
+    function start() {
+      tracking.start();
+      tracking.setStroke(3, "#FF0000");
+      console.log("start...");
+    }, 3000);
+
+
+  var matrix;
+
+
+  boardReady({ board: 'Smart', device: '10y3gpny', transport: 'mqtt' }, function (board) {
+    board.samplingInterval = 50;
+    matrix = getMax7219(board, 16, 14, 5);
+    matrix.animateStop();
+    matrix.on('0000000000000000');
+    matrix.on('ff818181818181ff');
+    matrix.animateStop();
+    matrix.on('0000000000000000');
+    matrix.on('007e425a5a427e00');
+  });
+  </script>
+</body>
+
+</html>
