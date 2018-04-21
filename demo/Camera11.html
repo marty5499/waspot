@@ -39,10 +39,9 @@
     test2(canvasId);
   });
 
-  vColor = { "a1m": "1", "a2m": "170", "a3m": "124", "b1m": "71", "b2m": "255", "b3m": "255" };
+  vColor = {"a1m":"1","a2m":"1","a3m":"124","b1m":"71","b2m":"255","b3m":"255"};
 
   function showVal(ele) {
-    console.log(ele.id, ele.value);
     document.getElementById(ele.id + 'm').innerHTML = ele.value;
     vColor[ele.id + 'm'] = ele.value;
     console.log(JSON.stringify(vColor));
@@ -86,11 +85,27 @@
       "low": [parseFloat(vColor.a1m), parseFloat(vColor.a2m), parseFloat(vColor.a3m), 0],
       "high": [parseFloat(vColor.b1m), parseFloat(vColor.b2m), parseFloat(vColor.b3m), 255]
     };
+
+    document.getElementById('a1').value = parseFloat(vColor.a1m);
+    document.getElementById('a1m').innerHTML = vColor.a1m;
+    document.getElementById('a2').value = parseFloat(vColor.a2m);
+    document.getElementById('a2m').innerHTML = vColor.a2m;
+    document.getElementById('a3').value = parseFloat(vColor.a3m);
+    document.getElementById('a3m').innerHTML = vColor.a3m;
+    document.getElementById('b1').value = parseFloat(vColor.b1m);
+    document.getElementById('b1m').innerHTML = vColor.b1m;
+    document.getElementById('b2').value = parseFloat(vColor.b2m);
+    document.getElementById('b2m').innerHTML = vColor.b2m;
+    document.getElementById('b3').value = parseFloat(vColor.b3m);
+    document.getElementById('b3m').innerHTML = vColor.b3m;
+
     let low = new cv.Mat(src.rows, src.cols, src.type(),
       range.low);
     let high = new cv.Mat(src.rows, src.cols, src.type(),
       range.high);
     cv.inRange(src, low, high, dstx);
+    dstx = filter.erosion(dstx,5);
+    dstx = filter.dilation(dstx, 10);
     cv.imshow('c2', dstx);
     low.delete();
     high.delete();
