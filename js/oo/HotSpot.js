@@ -99,14 +99,14 @@ class Hotspot {
     if (this.startDetect) {
       this.reset();
     } else {
-      this.bs = new cv.BackgroundSubtractorMOG2(100, 500, false);
+      this.bs = new cv.BackgroundSubtractorMOG2(100, 900, false);
       self.startDetect = true;
     }
   }
 
   reset() {
     var self = this;
-    this.bs = new cv.BackgroundSubtractorMOG2(100, 500, false);
+    this.bs = new cv.BackgroundSubtractorMOG2(100, 900, false);
     this.lastPos = false;
     self.firstDetect = true;
     self.resetImageCollision();
@@ -184,9 +184,11 @@ class Hotspot {
     let src = cv.matFromImageData(this.getImageData());
     let dstx = new this.cv.Mat();
     this.bs.apply(src, dstx, 0); //去背偵測物件
-    dstx = this.imgFilter.erosion(dstx, 3);
-    dstx = this.imgFilter.gaussianBlur(dstx, 15);
-    dstx = this.imgFilter.erosion(dstx, 12);
+    //dstx = this.imgFilter.erosion(dstx, 3);
+    dstx = this.imgFilter.gaussianBlur(dstx, 7);
+    //dstx = this.imgFilter.erosion(dstx, 12);
+    dstx = this.imgFilter.dilation(dstx, 15);
+
 
     if (!this.startDetect) {
       src.delete()
