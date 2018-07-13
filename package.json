@@ -10,7 +10,7 @@
   "scripts": {
     "http": "budo deeplearn/main.js:dist/build.js --live --host ::",
     "https": "budo deeplearn/main.js:dist/build.js --ssl --cors --live --host ::",
-    "build": "browserify deeplearn/main.js -o dist/build.js"
+    "build": "browserify deeplearn/main.js -o dist/deeplearn.js"
   },
   "pre-commit": [
     "build"
@@ -38,6 +38,10 @@
     "babel-plugin-transform-regenerator": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^8.0.0",
-    "budo": "^10.0.4"
+    "budo": "^11.2.2",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-uglify": "^3.0.0"
   }
 }

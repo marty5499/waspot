@@ -1,18 +1,34 @@
 class Camera {
   constructor(idx) {
-    if (typeof idx == 'string' && idx.indexOf('ws') == 0) {
-      this.remote = true;
+    this.remote = typeof idx == "string" && idx.indexOf('ws') == 0;
+    if (this.remote) {
       this.url = idx;
     } else {
-      this.remote = false;
       this.cameraList = [];
-      this.idx = arguments.length == 0 ? 0 : idx;
-      var self = this;
+      this.idx = arguments.length == 0 ? 0 : parseInt(idx);
+    }
+  }
+
+
+  list(cb) {
+    var self = this;
+    navigator.mediaDevices.enumerateDevices()
+      .then(function (o) {
+        self.gotDevices(self, o);
+        cb(self.cameraList);
+      }).catch(self.handleError);
+
+  }
+
+  async init() {
+    var self = this;
+    return new Promise(function (resolve, reject) {
       navigator.mediaDevices.enumerateDevices()
         .then(function (o) {
           self.gotDevices(self, o);
-        }).catch(this.handleError);
-    }
+          resolve();
+        }).catch(self.handleError);
+    });
   }
 
   gotDevices(self, deviceInfos) {
@@ -22,11 +38,46 @@ class Camera {
         self.cameraList.push(deviceInfo);
       }
     }
-    //console.log(self.cameraList);
-    self.start();
+  }
+
+  async start() {
+    await this.init();
+    if (window.stream) {
+      window.stream.getTracks().forEach(function (track) {
+        track.stop();
+      });
+    }
+    var deviceId = 0;
+    try {
+      deviceId = this.cameraList[this.idx].deviceId;
+    } catch (e) {
+      console.log("can't found idx:", this.idx, "error:", e);
+      console.log(this.cameraList);
+    }
+    var constraints = {
+      video: {
+        deviceId: { exact: deviceId }
+      }
+    };
+    var self = this;
+    navigator.mediaDevices.getUserMedia(constraints).
+    then(function (stream) {
+      if (self.stream) {
+        self.stream(stream);
+      }
+    }).catch(this.handleError);
+  }
+
+  onStream(stream) {
+    this.stream = stream;
+  }
+
+  handleError(error) {
+    console.log('Error: ', error);
   }
 
   toVideo(eleId) {
+    this.start();
     if (eleId.charAt(0) == '#') {
       eleId = eleId.substring(1);
     }
@@ -44,33 +95,8 @@ class Camera {
     }
   }
 
-  start() {
-    if (window.stream) {
-      window.stream.getTracks().forEach(function (track) {
-        track.stop();
-      });
-    }
-    var constraints = {
-      video: {
-        deviceId: { exact: this.cameraList[this.idx].deviceId }
-      }
-    };
-    var self = this;
-    navigator.mediaDevices.getUserMedia(constraints).
-    then(function (stream) {
-      self.stream(stream);
-    }).catch(this.handleError);
-  }
-
-  onStream(stream) {
-    this.stream = stream;
-  }
-
-  handleError(error) {
-    console.log('Error: ', error);
-  }
-
   onCanvas(canvasId, callback) {
+    this.start();
     var canvas = document.getElementById(canvasId);
     var video = document.createElement('video');
     video.autoplay = true;

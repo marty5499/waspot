@@ -99,14 +99,14 @@ class Hotspot {
     if (this.startDetect) {
       this.reset();
     } else {
-      this.bs = new cv.BackgroundSubtractorMOG2(100, 900, false);
+      this.bs = new cv.BackgroundSubtractorMOG2(500, 2000, false);
       self.startDetect = true;
     }
   }
 
   reset() {
     var self = this;
-    this.bs = new cv.BackgroundSubtractorMOG2(100, 900, false);
+    this.bs = new cv.BackgroundSubtractorMOG2(500, 2100, false);
     this.lastPos = false;
     self.firstDetect = true;
     self.resetImageCollision();
@@ -188,7 +188,6 @@ class Hotspot {
     dstx = this.imgFilter.gaussianBlur(dstx, 7);
     //dstx = this.imgFilter.erosion(dstx, 12);
     dstx = this.imgFilter.dilation(dstx, 15);
-
 
     if (!this.startDetect) {
       src.delete()
@@ -312,6 +311,14 @@ class Hotspot {
   }
 
   checkInside(point) {
+    var maxX = Math.max.apply(null, [this.x1, this.x2, this.x3, this.x4]);
+    var minX = Math.min.apply(null, [this.x1, this.x2, this.x3, this.x4]);
+    var maxY = Math.max.apply(null, [this.y1, this.y2, this.y3, this.y4]);
+    var minY = Math.min.apply(null, [this.y1, this.y2, this.y3, this.y4]);
+    if (point.x > maxX || point.x < minX || point.y > maxY || point.y < minY) {
+      return false;
+    }
+
     var polygon = [
       { x: this.x1, y: this.y1 },
       { x: this.x2, y: this.y2 },

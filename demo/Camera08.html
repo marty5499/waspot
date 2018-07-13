@@ -34,7 +34,7 @@
     tracking.setStroke(3, "#FF0000");
   });
 
-  new Camera("ws://192.168.43.204:8889/rws/ws").onCanvas(canvasId, function (canvas) {
+  new Camera("ws://tf.local:8889/rws/ws").onCanvas(canvasId, function (canvas) {
     tracking.scan();
   });
 
