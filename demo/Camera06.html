@@ -17,7 +17,7 @@
   var filter = new ImageFilter(cv);
   var canvas1 = document.getElementById('c1');
 
-  var tracking = new Hotspot(canvas1, canvas1, true, 20, 20, 200, 20, 200, 200, 20, 200);
+  var tracking = new Hotspot(canvas1, canvas1, true, 20, 20, 200, 20, 200, 100, 20, 100);
   tracking.setCvProcess(filter);
 
   tracking.inside(function (pos) {
