@@ -1,17 +1,12 @@
 {
-  "name": "cl-teachable-machine-boilerplate",
+  "name": "waspot",
   "version": "0.1.0",
   "license": "",
-  "dependencies": {
-    "deeplearn": "~0.5.0",
-    "deeplearn-knn-image-classifier": "^0.3.0",
-    "pre-commit": "^1.2.2"
-  },
   "scripts": {
-    "http": "budo deeplearn/main.js:dist/build.js --live --host ::",
-    "https": "budo deeplearn/main.js:dist/build.js --ssl --cors --live --host ::",
-    "main": "budo deeplearn/main.js:dist/build.js --live --host :: & budo deeplearn/main.js:dist/build.js --ssl --cors --live --host ::",
-    "build": "browserify deeplearn/main.js -o dist/deeplearn.js"
+    "http": "budo dist/build.js --live --host ::",
+    "https": "budo dist/build.js --ssl --cors --live --host ::",
+    "main": "budo dist/build.js --live --host :: & budo dist/build.js --ssl --cors --live --host ::",
+    "build": "browserify dist/build.js -o dist/waspot.js"
   },
   "pre-commit": [
     "build"
