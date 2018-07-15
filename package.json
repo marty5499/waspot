@@ -10,6 +10,7 @@
   "scripts": {
     "http": "budo deeplearn/main.js:dist/build.js --live --host ::",
     "https": "budo deeplearn/main.js:dist/build.js --ssl --cors --live --host ::",
+    "main": "budo deeplearn/main.js:dist/build.js --live --host :: & budo deeplearn/main.js:dist/build.js --ssl --cors --live --host ::",
     "build": "browserify deeplearn/main.js -o dist/deeplearn.js"
   },
   "pre-commit": [
