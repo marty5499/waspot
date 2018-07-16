@@ -8,9 +8,6 @@
     "main": "budo dist/build.js --live --host :: & budo dist/build.js --ssl --cors --live --host ::",
     "build": "browserify dist/build.js -o dist/waspot.js"
   },
-  "pre-commit": [
-    "build"
-  ],
   "browserify": {
     "transform": [
       [
