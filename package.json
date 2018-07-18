@@ -3,10 +3,9 @@
   "version": "0.1.0",
   "license": "",
   "scripts": {
-    "http": "budo dist/build.js --live --host ::",
-    "https": "budo dist/build.js --ssl --cors --live --host ::",
-    "main": "budo dist/build.js --live --host :: & budo dist/build.js --ssl --cors --live --host ::",
-    "build": "browserify dist/build.js -o dist/waspot.js"
+    "http": "budo --live --host ::",
+    "https": "budo --ssl --cors --live --host ::",
+    "main": "budo --live --host :: & budo --ssl --cors --live --host ::"
   },
   "browserify": {
     "transform": [
