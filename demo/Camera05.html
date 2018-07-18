@@ -21,8 +21,8 @@
     let dstx = new cv.Mat();
     if (work) {
       bs.apply(src, dstx, 0);
-      dstx = filter.gaussianBlur(dstx, 9);
-      dstx = filter.erosion(dstx, 15);
+      dstx = filter.gaussianBlur(dstx, 3);
+      dstx = filter.erosion(dstx, 1);
       cv.threshold(dstx, dstx, 100, 250, cv.THRESH_BINARY);
       cv.cvtColor(dstx, dstx, cv.COLOR_GRAY2RGBA, 0);
       cv.imshow(canvasId, dstx);
@@ -35,7 +35,7 @@
 
   setTimeout(
     function start() {
-      bs = new cv.BackgroundSubtractorMOG2(500, 200, false);
+      bs = new cv.BackgroundSubtractorMOG2(100, 20, false);
       work = true;
     }, 3000);
   </script>
