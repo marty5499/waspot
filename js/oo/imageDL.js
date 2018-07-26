@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs@0.12.0';
 import { ControllerDataset } from './controller_dataset';
 
 

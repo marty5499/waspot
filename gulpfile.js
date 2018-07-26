@@ -1,19 +1,25 @@
 var gulp = require('gulp'),
-  uglify = require('gulp-uglify'),
   concat = require('gulp-concat'),
   babel = require('gulp-babel');
 
-gulp.task('jsmix', function () {
-  return gulp.src(['js/oo/*.js', '!js/jquery.js', '!js/opencv.js'])
+const uglifyes = require('uglify-es');
+const composer = require('gulp-uglify/composer');
+const uglify = composer(uglifyes, console);
+
+function jsmix() {
+  return gulp.src(['js/*.js', 'js/oo/*.js', '!js/jquery.js', '!js/opencv.js'])
     .pipe(babel())
-    //.pipe(uglify())
-    .pipe(gulp.dest('dist/js'))
-});
-
-gulp.task('concat', ['jsmix'], function () {
-  gulp.src('dist/js/**/*.js')
     .pipe(concat('waspot.js'))
-    .pipe(gulp.dest('dist/'))
-})
+    .pipe(gulp.dest('dist/es6/'))
+}
 
-gulp.task('default', ['concat'])
+function jsmin() {
+  return gulp.src(['dist/es6/waspot.js'])
+    .pipe(uglify())
+    .pipe(gulp.dest('dist/'))
+}
+
+gulp.task(jsmin);
+gulp.task(jsmix);
+
+gulp.task('default', gulp.series(jsmix, jsmin));

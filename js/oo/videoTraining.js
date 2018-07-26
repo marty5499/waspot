@@ -1,5 +1,5 @@
-import { ImageDL } from './oo/imageDL';
-import { CaptureCanvas } from './oo/CaptureCanvas';
+import { ImageDL } from './imageDL';
+import { CaptureCanvas } from './CaptureCanvas';
 
 var ready = false;
 var NUM_CLASSES = prompt("請輸入預設識別種類數量", "4");

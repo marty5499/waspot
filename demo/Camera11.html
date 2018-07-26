@@ -17,20 +17,20 @@
   <div>Lower
     <br>
     <input id='a1' type="range" min="1" max="180" value="50" oninput="showVal(this)">
-    <span id='a1m'>50</span>
+    H(min):<span id='a1m'>50</span>
     <input id='a2' type="range" min="1" max="255" value="50" oninput="showVal(this)">
-    <span id='a2m'>50</span>
+    S(min):<span id='a2m'>50</span>
     <input id='a3' type="range" min="1" max="255" value="50" oninput="showVal(this)">
-    <span id='a3m'>50</span>
+    V(min):<span id='a3m'>50</span>
   </div>
   <div>Higher
     <br>
     <input id='b1' type="range" min="1" max="180" value="150" oninput="showVal(this)">
-    <span id='b1m'>150</span>
+    H(max):<span id='b1m'>150</span>
     <input id='b2' type="range" min="1" max="255" value="150" oninput="showVal(this)">
-    <span id='b2m'>150</span>
+    S(max):<span id='b2m'>150</span>
     <input id='b3' type="range" min="1" max="255" value="150" oninput="showVal(this)">
-    <span id='b3m'>150</span>
+    V(max):<span id='b3m'>150</span>
   </div>
   <div>erosion
     <input id='e' type="range" min="0" max="100" value="0" oninput="showVal(this)">
@@ -53,7 +53,7 @@
   //藍色 {"a1m":"93","a2m":"94","a3m":"50","b1m":"125","b2m":"255","b3m":"255","em":"5","dm":"8"}
   //綠色  {"a1m":"56","a2m":"69","a3m":"50","b1m":"91","b2m":"255","b3m":"255","em":"8","dm":"19"}
   //紅色 {"a1m":"149","a2m":"111","a3m":"46","b1m":"180","b2m":"222","b3m":"167","em":"8","dm":"15"}
-  vColor = { "a1m": "56", "a2m": "69", "a3m": "50", "b1m": "91", "b2m": "255", "b3m": "255", "em": "8", "dm": "19" };
+  vColor = { "a1m": "56", "a2m": "69", "a3m": "50", "b1m": "91", "b2m": "255", "b3m": "255", "em": "0", "dm": "0" };
 
   function showVal(ele) {
     document.getElementById(ele.id + 'm').innerHTML = ele.value;
