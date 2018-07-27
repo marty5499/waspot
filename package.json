@@ -4,7 +4,7 @@
   "license": "",
   "scripts": {
     "http": "budo --live --host ::",
-    "https": "budo --ssl --cors --live --host ::",
+    "https": "budo --ssl --cors --live --port 9967 --host ::",
     "main": "budo --live --host :: & budo --ssl --cors --live --host ::"
   },
   "browserify": {
