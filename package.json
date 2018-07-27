@@ -4,7 +4,7 @@
   "license": "",
   "scripts": {
     "http": "budo --live --host ::",
-    "https": "budo ./js/oo/videoTraining.js --ssl --cors --live --host ::",
+    "https": "budo --ssl --cors --live --host ::",
     "main": "budo --live --host :: & budo --ssl --cors --live --host ::"
   },
   "browserify": {
