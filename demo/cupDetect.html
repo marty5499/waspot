@@ -109,8 +109,10 @@
   var container = new Container("cup");
   var lastAmt = -1;
   var detectSpendTime = new Date().getTime();
+  var ip = 'tf.local';
+  ip = location.hash.length == 0 ? ip : location.hash.substring(1);
   //tf.local
-  objectDetect = (getObjectDetect("ws://192.168.43.204:8889/rws/ws", "/tfjs-model/model.json"));
+  objectDetect = (getObjectDetect("ws://"+ip+":8889/rws/ws", "/tfjs-model/model.json"));
   objectDetect.onName("cup",
     function (className, classProb, top, left, width, height) {
       container.add(new Obj(className, top, left, width, height));
