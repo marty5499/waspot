@@ -1,0 +1,78 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="../js/oo/Camera.js"></script>
+  <script src="../js/oo/ImageFilter.js"></script>
+  <script src="../js/oo/HotSpot.js"></script>
+  <script src="../js/opencv.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js"></script>
+  <script src="https://blocklypro.webduino.io/components/webduino-module-ws2812/WS2812.js"></script>
+  <script src="https://blocklypro.webduino.io/components/webduino-module-ws2812/WS2812-blockly.js"></script>
+</head>
+
+<body>
+  <h1>Hotspot section detect</h1>
+  <canvas id='c1' width=320 height=240></canvas>
+  <script>
+  (async function () {
+    var ws2812;
+    boardReady({ board: 'Smart', device: 'n3rBA', transport: 'mqtt' }, async function (board) {
+      board.samplingInterval = 50;
+      ws2812 = getWS2812(board, 14, 8);
+      ws2812.off();
+      ws2812.brightness(127);
+      window.setLED = function (color, amt) {
+        for (var i = 1; i <= amt; i++) {
+          ws2812.setColor(i - 1, color);
+        }
+      }
+      window.offLED = function () {
+        ws2812.off();
+      }
+    });
+  }());
+
+
+  var canvasId = 'c1';
+  var filter = new ImageFilter(cv);
+  var canvas1 = document.getElementById('c1');
+  var strongVal = 0,
+    lastStrongVal = 0;
+
+  var tracking = new Hotspot(canvas1, canvas1, true, 20, 20, 100, 20, 100, 100, 20, 100);
+  tracking.setCvProcess(filter);
+
+  tracking.inside(function (pos) {
+    tracking.setStroke(3, "#00FF00");
+    strongVal = parseInt(pos.radius / 6);
+
+    if (lastStrongVal != strongVal) {
+      offLED();
+      setLED("#FF0000", strongVal);
+      lastStrongVal = strongVal;
+    }
+  });
+
+  tracking.outside(function (pos) {
+    tracking.setStroke(3, "#FF0000");
+    offLED();
+  });
+
+  var camIdx = location.hash == '' ? 0 : location.hash.substring(1);
+  new Camera(camIdx).onCanvas(canvasId, function (canvas) {
+    tracking.scan();
+  });
+
+  setTimeout(
+    function start() {
+      tracking.start();
+      tracking.setStroke(3, "#FF0000");
+      console.log("start...");
+    }, 3000);
+  </script>
+</body>
+
+</html>
