@@ -5,7 +5,8 @@
   "scripts": {
     "http": "budo --live --port 9966 --host ::",
     "https": "budo --ssl --cors --live --port 9967 --host ::",
-    "main": "budo --live --host :: & budo --ssl --cors --live --host ::"
+    "main": "budo --live --host :: & budo --ssl --cors --live --host ::",
+    "start": "budo --live --host :: & budo --ssl --cors --live --host ::"
   },
   "browserify": {
     "transform": [
