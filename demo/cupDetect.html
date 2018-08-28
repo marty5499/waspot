@@ -9,7 +9,6 @@
   <script src="http://bit.webduino.io/blockly/components/jquery/dist/jquery.min.js"></script>
   <script src="http://bit.webduino.io/blockly/dist/lib/webduino-all.min.js"></script>
   <script src="http://bit.webduino.io/blockly/dist/MessageTransport.min.js"></script>
-  <script src="http://bit.webduino.io/blockly/dist/MessageTransport.min.js"></script>
   <script src="http://bit.webduino.io/blockly/dist/webduino-blockly.min.js"></script>
   <script src="http://bit.webduino.io/blockly/dist/lib/firebase.min.js"></script>
   <script src="http://bit.webduino.io/blockly/dist/lib/runtime.min.js"></script>
@@ -22,9 +21,9 @@
 
 <body>
   <div>
-    <h2 id="demo-area-01-show">開始物件偵測: <span id='msg'>0</span></h2></div>
-  <h2 id="fpsMsg"></h2>
-  <script id="jsbin-javascript">
+    <h2 id="show" style="display:none">開始物件偵測: <span id='msg'>0</span></h2></div>
+  <h2 id="fpsMsg">影像連結中...</h2>
+  <script>
   var objectDetect;
   var matrix, isBoardReady = false;;
 
@@ -33,6 +32,36 @@
     matrix = getMatrix(board, 4, 25);
     isBoardReady = true;
   });
+
+  (function () {
+    if (!console) {
+      console = {};
+    }
+    var old = console.log;
+    var logger = document.getElementById('log');
+    var webRTC_keyword = "addIceCandidate success";
+    var webRTC_keyword_err = "An error occured";
+    var webRTC_keyword_err2 = "Websocket Disconnected";
+    var percent = 0;
+    console.log = function () {
+      if (arguments.length == 2) {
+        var msg = arguments[1];
+        if (msg === webRTC_keyword_err) {
+          fpsMsg.innerHTML = "連線發生錯誤，請檢查網路狀態或重開主機";
+        } else if (msg === webRTC_keyword_err2) {
+          fpsMsg.innerHTML = "無法連線，可能有其他瀏覽器使用中...";
+        } else {
+          percent += percent > 90 ? 0 : 1;
+          if (msg == 'End of candidates.') {
+            percent = 100;
+            show.style.display = "";
+          }
+          fpsMsg.innerHTML = percent + "%";
+        }
+      }
+      old(...arguments);
+    }
+  })();
 
 
   class Obj {
@@ -112,7 +141,7 @@
   var ip = 'tf.local';
   ip = location.hash.length == 0 ? ip : location.hash.substring(1);
   //tf.local
-  objectDetect = (getObjectDetect("ws://"+ip+":8889/rws/ws", "/tfjs-model/model.json"));
+  objectDetect = (getObjectDetect("ws://" + ip + ":8889/rws/ws", "/tfjs-model/model.json"));
   objectDetect.onName("cup",
     function (className, classProb, top, left, width, height) {
       container.add(new Obj(className, top, left, width, height));
