@@ -20,9 +20,11 @@
 </head>
 
 <body>
+  <img src="https://lh5.googleusercontent.com/AfrG7LWinFQ4_GjmjJhAsMedHnKd_ICzePU-G5AQfM6DwNeON3Tsm0PoTIt0KU7EFfD1qBwP2E6J60z3354CCWcSDvo-KfQLaEJCPFUyZaRi_qVtkGHanLxib8N3hjZIwOVbvcPS" width="416">
   <div>
-    <h2 id="show" style="display:none">開始物件偵測: <span id='msg'>0</span></h2></div>
-  <h2 id="fpsMsg">影像連結中...</h2>
+    <h2 id="show" style="display:none">無人商店範例：開始偵測杯子數量 <span id='msg'>0</span></h2>
+    <span id="fpsMsg">影像連結中...</span>
+  </div>
   <script>
   var objectDetect;
   var matrix, isBoardReady = false;;
@@ -56,7 +58,7 @@
             percent = 100;
             show.style.display = "";
           }
-          fpsMsg.innerHTML = percent + "%";
+          fpsMsg.innerHTML = "初始化進度...:" + percent + "%";
         }
       }
       old(...arguments);
