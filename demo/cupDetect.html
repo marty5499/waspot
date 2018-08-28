@@ -142,6 +142,7 @@
   ip = location.hash.length == 0 ? ip : location.hash.substring(1);
   //tf.local
   objectDetect = (getObjectDetect("ws://" + ip + ":8889/rws/ws", "/tfjs-model/model.json"));
+  objectDetect.filter = "cup";
   objectDetect.onName("cup",
     function (className, classProb, top, left, width, height) {
       container.add(new Obj(className, top, left, width, height));
