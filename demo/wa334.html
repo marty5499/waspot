@@ -14,24 +14,27 @@
 </head>
 
 <body>
-  <h1>熱區偵測</h1>
+  <h1 id='title'>熱區偵測初始化中...</h1>
   <canvas id='c1' width=320 height=240></canvas>
   <script>
+  var isReady = false;
   (async function () {
     var ws2812;
-    boardReady({ board: 'Smart', device: 'n3rBA', transport: 'mqtt' }, async function (board) {
+    boardReady({ board: 'Smart', device: 'n3rBA', transport: 'mqtt', multi: true }, async function (board) {
+      title.innerHTML = "熱區偵測，開始偵測...";
       board.samplingInterval = 50;
       ws2812 = getWS2812(board, 14, 8);
       ws2812.off();
       ws2812.brightness(127);
-      window.setLED = function (color, amt) {
-        for (var i = 1; i <= amt; i++) {
-          ws2812.setColor(i - 1, color);
-        }
+      window.setLED = function (i, color) {
+        ws2812.setColor(i, color);
       }
       window.offLED = function () {
         ws2812.off();
       }
+      tracking.start();
+      tracking.setStroke(3, "#FF0000");
+      isReady = true;
     });
   }());
 
@@ -40,7 +43,7 @@
   var filter = new ImageFilter(cv);
   var canvas1 = document.getElementById('c1');
   var strongVal = 0,
-    lastStrongVal = 0;
+    ledValue = 0;
 
   var tracking = new Hotspot(canvas1, canvas1, true, 20, 20, 100, 20, 100, 100, 20, 100);
   tracking.setCvProcess(filter);
@@ -48,17 +51,11 @@
   tracking.inside(function (pos) {
     tracking.setStroke(3, "#00FF00");
     strongVal = parseInt(pos.radius / 6);
-
-    if (lastStrongVal != strongVal) {
-      offLED();
-      setLED("#FF0000", strongVal);
-      lastStrongVal = strongVal;
-    }
   });
 
   tracking.outside(function (pos) {
     tracking.setStroke(3, "#FF0000");
-    offLED();
+    strongVal = 0;
   });
 
   var camIdx = location.hash == '' ? 0 : location.hash.substring(1);
@@ -66,12 +63,19 @@
     tracking.scan();
   });
 
-  setTimeout(
-    function start() {
-      tracking.start();
-      tracking.setStroke(3, "#FF0000");
-      console.log("start...");
-    }, 3000);
+  setInterval(function () {
+    if (isReady) {
+      if (strongVal == 0) {
+        ledValue = 0;
+        offLED();
+      } else if (strongVal > ledValue) {
+        setLED(++ledValue, "#FF0000");
+      } else if (strongVal < ledValue) {
+        setLED(--ledValue, "#000000");
+      }
+      title.innerHTML = "熱區偵測，開始偵測..." + ledValue;
+    }
+  }, 100);
   </script>
 </body>
 
