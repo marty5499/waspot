@@ -4,7 +4,8 @@ import { CaptureCanvas } from './CaptureCanvas';
 var ready = false;
 var NUM_CLASSES = prompt("請輸入預設識別種類數量", "4");
 var imageDL = new ImageDL(+NUM_CLASSES);
-imageDL.setServer('http://codegen/');
+//imageDL.setServer('http://codegen/');
+imageDL.setServer('https://localhost:3000/');
 imageDL.load();
 
 var labels = [];

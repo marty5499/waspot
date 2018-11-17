@@ -1,14 +1,16 @@
 class Camera {
+
+  // 0,1,2 or http:// ws://192.168.43.204:8889/rws/ws
   constructor(idx) {
-    this.remote = typeof idx == "string" && idx.indexOf('ws') == 0;
+    this.cameraList = [];
+    this.remote = typeof idx == "string";
     if (this.remote) {
+      this.idx = -1;
       this.url = idx;
     } else {
-      this.cameraList = [];
       this.idx = arguments.length == 0 ? 0 : parseInt(idx);
     }
   }
-
 
   list(cb) {
     var self = this;
@@ -17,10 +19,10 @@ class Camera {
         self.gotDevices(self, o);
         cb(self.cameraList);
       }).catch(self.handleError);
-
   }
 
   async init() {
+    if (this.idx == -1) return;
     var self = this;
     return new Promise(function (resolve, reject) {
       navigator.mediaDevices.enumerateDevices()
@@ -42,6 +44,7 @@ class Camera {
 
   async start() {
     await this.init();
+    if (this.idx == -1) return;
     if (window.stream) {
       window.stream.getTracks().forEach(function (track) {
         track.stop();
@@ -82,10 +85,14 @@ class Camera {
       eleId = eleId.substring(1);
     }
     if (this.remote) {
-      if (window.WebSocket) {
-        var video = document.getElementById(eleId);
-        remoteVideo = video;
-        ConnectWebSocket(this.url);
+      if (this.remote.indexOf("ws://") == 0) {
+        if (window.WebSocket) {
+          var video = document.getElementById(eleId);
+          this.remoteVideo = video;
+          ConnectWebSocket(this.url);
+        }
+      } else if (this.remote.indexOf("http://") == 0) {
+        console.log("ESP32 Camera");
       }
     } else {
       var ele = document.getElementById(eleId);
@@ -95,14 +102,26 @@ class Camera {
     }
   }
 
+  drawRotated(canvas, image, degrees) {
+    var context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.save();
+    context.translate(canvas.width / 2, canvas.height / 2);
+    context.rotate(degrees * Math.PI / 180);
+    context.drawImage(image, -image.width / 2, -image.width / 2);
+    context.restore();
+  }
+
   onCanvas(canvasId, callback) {
     this.start();
-    var canvas = document.getElementById(canvasId);
-    var video = document.createElement('video');
-    video.autoplay = true;
-    if (this.remote) {
+    var canvas = typeof canvasId === 'object' ?
+      canvasId : document.getElementById(canvasId);
+    var video;
+    if (this.remote && this.url.indexOf("ws://") == 0) {
+      video = document.createElement('video');
+      video.autoplay = true;
       if (window.WebSocket) {
-        remoteVideo = video;
+        this.remoteVideo = video;
         ConnectWebSocket(this.url);
         video.onloadeddata = function () {
           var loop = function () {
@@ -114,6 +133,29 @@ class Camera {
           }
           requestAnimationFrame(loop);
         }
+      }
+    } else if (this.remote && this.url.indexOf("http://") == 0) {
+      var self = this;
+      var espCamImg = document.createElement('img');
+      espCamImg.width = 224;
+      espCamImg.height = 224;
+      espCamImg.setAttribute("crossOrigin", 'Anonymous');
+      var camSnapshotDelay = 0.5;
+      var param = this.url.indexOf("?");
+      if (param > 0) {
+        camSnapshotDelay = parseFloat(this.url.substring(param + 1)) * 1000;
+        this.url = this.url.substring(0, param);
+      }
+      espCamImg.src = this.url;
+      var ctx = canvas.getContext('2d');
+      espCamImg.onload = function () {
+        self.drawRotated(canvas, espCamImg, 90);
+        if (typeof callback == 'function') {
+          callback(canvas);
+        }
+        setTimeout(function () {
+          espCamImg.src = self.url + "?" + Math.random();
+        }, camSnapshotDelay);
       }
     } else {
       this.onStream(function (stream) {
