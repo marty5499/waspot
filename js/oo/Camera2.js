@@ -112,29 +112,34 @@ let Camera = (function () {
       }
     }
 
-    onCanvas(canvasId_or_ele, callback) {
-      this.startCam();
-      var canvas = this.getEle(canvasId_or_ele);
-      var video = this.createVideo(callback);
-      window.remoteVideo = this.video = video;
-      video.onloadeddata = function () {
-        var loop = function () {
-          var ctx = canvas.getContext('2d');
-          ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
-            0, 0, canvas.width, canvas.height);
-          if (typeof callback == 'function') {
-            callback(canvas);
+    onCanvas(eleOrId, callback) {
+      var self = this;
+      var canvas = self.getEle(eleOrId);
+      buttonTrigger(canvas, function () {
+        self.startCam();
+        var video = self.createVideo(callback);
+        window.remoteVideo = self.video = video;
+        video.onloadeddata = function () {
+          var loop = function () {
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
+              0, 0, canvas.width, canvas.height);
+            if (typeof callback == 'function') {
+              callback(canvas);
+            }
+            requestAnimationFrame(loop);
           }
           requestAnimationFrame(loop);
         }
-        requestAnimationFrame(loop);
-      }
+      });
     }
 
     toVideo(eleOrId) {
-      this.startCam();
-      window.remoteVideo = this.video = typeof eleOrId === 'object' ?
-        eleOrId : document.getElementById(eleOrId);
+      var self = this;
+      window.remoteVideo = self.video = this.getEle(eleOrId);
+      buttonTrigger(self.video, function () {
+        self.startCam();
+      });
     }
 
     createVideo(callback) {
@@ -151,6 +156,26 @@ let Camera = (function () {
       context.rotate(degrees * Math.PI / 180);
       context.drawImage(image, -image.width / 2, -image.width / 2);
       context.restore();
+    }
+  }
+
+  function buttonTrigger(ele, callback) {
+    if (navigator.userAgent.indexOf("Chrome") < 0) {
+      var btn = document.createElement("BUTTON");
+      btn.setAttribute("style", "background-color: #e0f0e0;position: absolute;z-index:2;font-size:32px");
+      document.getElementsByTagName("body")[0].append(btn);
+      var rect = ele.getBoundingClientRect();
+      btn.style.top = rect.top;
+      btn.style.left = rect.left;
+      btn.style.width = rect.width;
+      btn.style.height = rect.height;
+      btn.innerHTML = "Start Camera";
+      btn.addEventListener('click', function (e) {
+        btn.parentNode.removeChild(btn);
+        callback();
+      });
+    } else {
+      callback();
     }
   }
 
