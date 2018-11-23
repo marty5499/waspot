@@ -1,10 +1,10 @@
 let Camera = (function () {
   const webCam = 0;
   const wsCam = 1;
-  const httpCam = 2;
+  const jpgCam = 2;
 
   class Camera {
-    // 0,1,2 or http:// ws://192.168.43.110:8889/rws/ws
+    // camType: 0,1,2 or http://192.168.0.11/jpg or ws://192.168.43.110:8889/rws/ws
     constructor(camType) {
       this.setCamType(camType);
     }
@@ -16,7 +16,7 @@ let Camera = (function () {
         if (camType.indexOf("ws://") == 0) {
           this.camType = wsCam;
         } else if (camType.indexOf("http://") == 0) {
-          this.camType = httpCam;
+          this.camType = jpgCam;
         }
       } else {
         this.camType = camType;
@@ -79,9 +79,9 @@ let Camera = (function () {
           console.log("WebRTC:", this.camType);
           ConnectWebSocket(this.URL);
           break;
-        case httpCam:
+        case jpgCam:
           // http://192.168.43.201:9966/ok.png
-          console.log("HTTPCam:", this.camType);
+          console.log("JPGCam:", this.camType);
           console.log("URL:", this.URL);
           break;
       }
@@ -106,8 +106,10 @@ let Camera = (function () {
       image.onload = function () {
         //self.drawRotated(canvas, image, 90);
         setTimeout(function () {
+          if (typeof callback == 'function') {
+            callback(image);
+          }
           image.src = self.URL + "?" + Math.random();
-          console.log("refresh image:", image.src);
         }, camSnapshotDelay);
       }
     }
@@ -117,19 +119,33 @@ let Camera = (function () {
       var canvas = self.getEle(eleOrId);
       buttonTrigger(canvas, function () {
         self.startCam();
-        var video = self.createVideo(callback);
-        window.remoteVideo = self.video = video;
-        video.onloadeddata = function () {
-          var loop = function () {
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
-              0, 0, canvas.width, canvas.height);
-            if (typeof callback == 'function') {
-              callback(canvas);
+        switch (self.camType) {
+          case webCam:
+          case wsCam:
+            var video = self.createVideo();
+            window.remoteVideo = self.video = video;
+            video.onloadeddata = function () {
+              var loop = function () {
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
+                  0, 0, canvas.width, canvas.height);
+                if (typeof callback == 'function') {
+                  callback(canvas);
+                }
+                requestAnimationFrame(loop);
+              }
+              requestAnimationFrame(loop);
             }
-            requestAnimationFrame(loop);
-          }
-          requestAnimationFrame(loop);
+            break;
+          case jpgCam:
+            self.onImage(document.createElement('img'), function (img) {
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+              if (typeof callback == 'function') {
+                callback(canvas);
+              }
+            });
+            break;
         }
       });
     }
@@ -142,7 +158,7 @@ let Camera = (function () {
       });
     }
 
-    createVideo(callback) {
+    createVideo() {
       var video = document.createElement('video');
       video.autoplay = true;
       return video;
