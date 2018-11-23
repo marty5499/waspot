@@ -10,10 +10,12 @@
 </head>
 
 <body>
-  <h1>WebRTC Demo</h1>
-  <img id='img' width=640 height=480></canvas>
+  <h1>Demo</h1>
+  <img id='img' width=640 height=480 src="http://cam23.local/"></canvas>
   <script>
-  new Camera("http://192.168.43.201:9966/ok.png?0.5").onImage('img');
+  new Camera("http://cam23.local/").onImage('img', function () {
+    console.log("Done.");
+  });
   </script>
 </body>
 

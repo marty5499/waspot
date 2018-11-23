@@ -10,8 +10,10 @@
   <h1>Camera to Canvas Demo</h1>
   <canvas id='c1' width=640 height=480></canvas>
   <script>
-    var cam = new Camera(0);
-    cam.onCanvas('c1');
+  var cam = new Camera(0);
+  cam.onCanvas('c1', function (c) {
+    console.log("canvas:", c);
+  });
   </script>
 </body>
 
