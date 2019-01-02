@@ -6,64 +6,35 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Webduino Blockly App</title>
-  <script src="https://bit.webduino.io/blockly/components/jquery/dist/jquery.min.js"></script>
-  <script src="https://bit.webduino.io/blockly/dist/lib/webduino-all.min.js"></script>
-  <script src="https://bit.webduino.io/blockly/dist/MessageTransport.min.js"></script>
-  <script src="https://bit.webduino.io/blockly/dist/webduino-blockly.min.js"></script>
-  <script src="https://bit.webduino.io/blockly/dist/lib/firebase.min.js"></script>
-  <script src="https://bit.webduino.io/blockly/dist/lib/runtime.min.js"></script>
+  <script src="http://bit.webduino.io/blockly/components/jquery/dist/jquery.min.js"></script>
+  <script src="http://bit.webduino.io/blockly/dist/lib/webduino-all.min.js"></script>
+  <script src="http://bit.webduino.io/blockly/dist/MessageTransport.min.js"></script>
+  <script src="http://bit.webduino.io/blockly/dist/webduino-blockly.min.js"></script>
+  <script src="http://bit.webduino.io/blockly/dist/lib/firebase.min.js"></script>
+  <script src="http://bit.webduino.io/blockly/dist/lib/runtime.min.js"></script>
   <script src="https://marty5499.github.io/webduino-module-deeplearn/deeplearn.js"></script>
-  <script src="https://marty5499.github.io/webduino-module-deeplearn/objectDetect.js"></script>
+  <script src="/js/oo/Camera2.js"></script>
+  <script src="./objectDetect.js"></script>
   <script src="https://marty5499.github.io/webduino-module-deeplearn/deeplearn-blockly.js"></script>
-  <script src="https://bit.webduino.io/blockly/components/webduino-bit-module-led-matrix/BitLedMatrix-blockly.js"></script>
-  <script src="https://bit.webduino.io/blockly/components/webduino-bit-module-led-matrix/BitLedMatrix.js"></script>
+  <script src="http://bit.webduino.io/blockly/components/webduino-bit-module-led-matrix/BitLedMatrix-blockly.js"></script>
+  <script src="http://bit.webduino.io/blockly/components/webduino-bit-module-led-matrix/BitLedMatrix.js"></script>
 </head>
 
 <body>
   <img src="https://lh5.googleusercontent.com/AfrG7LWinFQ4_GjmjJhAsMedHnKd_ICzePU-G5AQfM6DwNeON3Tsm0PoTIt0KU7EFfD1qBwP2E6J60z3354CCWcSDvo-KfQLaEJCPFUyZaRi_qVtkGHanLxib8N3hjZIwOVbvcPS" width="416">
   <div>
     <h2 id="show" style="display:none">無人商店範例：開始偵測杯子數量 <span id='msg'>0</span></h2>
-    <span id="fpsMsg">影像連結中...</span>
+    <span id="fpsMsg"></span>
   </div>
   <script>
   var objectDetect;
-  var matrix, isBoardReady = false;;
+  var matrix, isBoardReady = false;
 
-  boardReady({ board: 'Bit', device: 'bita9e95', transport: 'mqtt' }, function (board) {
+  boardReady({ board: 'Bit', device: 'bita8839', transport: 'mqtt' }, function (board) {
     board.samplingInterval = 250;
     matrix = getMatrix(board, 4, 25);
     isBoardReady = true;
   });
-
-  (function () {
-    if (!console) {
-      console = {};
-    }
-    var old = console.log;
-    var logger = document.getElementById('log');
-    var webRTC_keyword = "addIceCandidate success";
-    var webRTC_keyword_err = "An error occured";
-    var webRTC_keyword_err2 = "Websocket Disconnected";
-    var percent = 0;
-    console.log = function () {
-      if (arguments.length == 2) {
-        var msg = arguments[1];
-        if (msg === webRTC_keyword_err) {
-          fpsMsg.innerHTML = "連線發生錯誤，請檢查網路狀態或重開主機";
-        } else if (msg === webRTC_keyword_err2) {
-          fpsMsg.innerHTML = "無法連線，可能有其他瀏覽器使用中...";
-        } else {
-          percent += percent > 90 ? 0 : 1;
-          if (msg == 'End of candidates.') {
-            percent = 100;
-            show.style.display = "";
-          }
-          fpsMsg.innerHTML = "初始化進度...:" + percent + "%";
-        }
-      }
-      old(...arguments);
-    }
-  })();
 
 
   class Obj {
@@ -140,10 +111,10 @@
   var container = new Container("cup");
   var lastAmt = -1;
   var detectSpendTime = new Date().getTime();
-  var ip = 'tf.local';
+  var ip = '192.168.43.252';
   ip = location.hash.length == 0 ? ip : location.hash.substring(1);
-  //tf.local "ws://" + ip + ":8889/rws/ws"
-  objectDetect = (getObjectDetect("1", "/tfjs-model/model.json"));
+  objectDetect = (getObjectDetect(
+    "http://" + ip + "/?0.3", "/tfjs-model/model.json"));
   objectDetect.filter = "cup";
   objectDetect.onName("cup",
     function (className, classProb, top, left, width, height) {
@@ -155,32 +126,35 @@
         var fps = parseInt((1000.0 / spendTime) * 10) / 10.0;
         fpsMsg.innerHTML = "FPS: " + fps;
       }
+
+
+
+      var amt = container.amount();
+      if (!isBoardReady || lastAmt == amt) {
+        return;
+      }
+      if (amt > lastAmt) {
+        plusFlag++;
+      } else {
+        plusFlag = 0;
+      }
+      if (plusFlag < 3 && plusFlag != 0) {
+        return;
+      }
+      plusFlag = 0;
+      lastAmt = amt;
+      var color = '#FFFFFF';
+      if (amt < 2) {
+        color = '#ff0000';
+      }
+      if (amt > 3) {
+        color = '#00ff00';
+      }
+      matrix.setCharacter('' + amt, color);
+      msg.innerHTML = amt;
+
+
     });
   var plusFlag = 0;
-  setInterval(function () {
-    var amt = container.amount();
-    if (!isBoardReady || lastAmt == amt) {
-      return;
-    }
-    if (amt > lastAmt) {
-      plusFlag++;
-    } else {
-      plusFlag = 0;
-    }
-    if (plusFlag < 3 && plusFlag != 0) {
-      return;
-    }
-    plusFlag = 0;
-    lastAmt = amt;
-    var color = '#FFFFFF';
-    if (amt < 2) {
-      color = '#ff0000';
-    }
-    if (amt > 3) {
-      color = '#00ff00';
-    }
-    matrix.setCharacter('' + amt, color);
-    msg.innerHTML = amt;
-  }, 300);
   </script>
 </body>

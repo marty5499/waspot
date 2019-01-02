@@ -1,174 +1,199 @@
-class Camera {
+let Camera = (function () {
+  const webCam = 0;
+  const wsCam = 1;
+  const jpgCam = 2;
 
-  // 0,1,2 or http:// ws://192.168.43.204:8889/rws/ws
-  constructor(idx) {
-    this.cameraList = [];
-    this.remote = typeof idx == "string";
-    if (this.remote) {
-      this.idx = -1;
-      this.url = idx;
-    } else {
-      this.idx = arguments.length == 0 ? 0 : parseInt(idx);
+  class Camera {
+    // camType: 0,1,2 or http://192.168.0.11/jpg or ws://192.168.43.110:8889/rws/ws
+    constructor(camType) {
+      this.setCamType(camType);
     }
-  }
 
-  list(cb) {
-    var self = this;
-    navigator.mediaDevices.enumerateDevices()
-      .then(function (o) {
-        self.gotDevices(self, o);
-        cb(self.cameraList);
-      }).catch(self.handleError);
-  }
-
-  async init() {
-    if (this.idx == -1) return;
-    var self = this;
-    return new Promise(function (resolve, reject) {
-      navigator.mediaDevices.enumerateDevices()
-        .then(function (o) {
-          self.gotDevices(self, o);
-          resolve();
-        }).catch(self.handleError);
-    });
-  }
-
-  gotDevices(self, deviceInfos) {
-    for (var i = 0; i !== deviceInfos.length; ++i) {
-      var deviceInfo = deviceInfos[i];
-      if (deviceInfo.kind === 'videoinput') {
-        self.cameraList.push(deviceInfo);
-      }
-    }
-  }
-
-  async start() {
-    await this.init();
-    if (this.idx == -1) return;
-    if (window.stream) {
-      window.stream.getTracks().forEach(function (track) {
-        track.stop();
-      });
-    }
-    var deviceId = 0;
-    try {
-      deviceId = this.cameraList[this.idx].deviceId;
-    } catch (e) {
-      console.log("can't found idx:", this.idx, "error:", e);
-      console.log(this.cameraList);
-    }
-    var constraints = {
-      video: {
-        deviceId: { exact: deviceId }
-      }
-    };
-    var self = this;
-    navigator.mediaDevices.getUserMedia(constraints).
-    then(function (stream) {
-      if (self.stream) {
-        self.stream(stream);
-      }
-    }).catch(this.handleError);
-  }
-
-  onStream(stream) {
-    this.stream = stream;
-  }
-
-  handleError(error) {
-    console.log('Error: ', error);
-  }
-
-  toVideo(eleId) {
-    this.start();
-    if (eleId.charAt(0) == '#') {
-      eleId = eleId.substring(1);
-    }
-    if (this.remote) {
-      if (this.remote.indexOf("ws://") == 0) {
-        if (window.WebSocket) {
-          var video = document.getElementById(eleId);
-          this.remoteVideo = video;
-          ConnectWebSocket(this.url);
+    setCamType(camType) {
+      this.cameraList = [];
+      if (isNaN(parseInt(camType))) {
+        this.URL = camType;
+        if (camType.indexOf("ws://") == 0) {
+          this.camType = wsCam;
+        } else if (camType.indexOf("http://") == 0) {
+          this.camType = jpgCam;
         }
-      } else if (this.remote.indexOf("http://") == 0) {
-        console.log("ESP32 Camera");
+      } else {
+        this.camType = camType;
       }
-    } else {
-      var ele = document.getElementById(eleId);
-      this.onStream(function (stream) {
-        ele.srcObject = stream;
-      });
     }
-  }
 
-  drawRotated(canvas, image, degrees) {
-    var context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.save();
-    context.translate(canvas.width / 2, canvas.height / 2);
-    context.rotate(degrees * Math.PI / 180);
-    context.drawImage(image, -image.width / 2, -image.width / 2);
-    context.restore();
-  }
-
-  onCanvas(canvasId, callback) {
-    this.start();
-    var canvas = typeof canvasId === 'object' ?
-      canvasId : document.getElementById(canvasId);
-    var video;
-    if (this.remote && this.url.indexOf("ws://") == 0) {
-      video = document.createElement('video');
-      video.autoplay = true;
-      if (window.WebSocket) {
-        this.remoteVideo = video;
-        ConnectWebSocket(this.url);
-        video.onloadeddata = function () {
-          var loop = function () {
-            canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
-              0, 0, canvas.width, canvas.height);
-            if (typeof callback == 'function')
-              callback(canvas);
-            requestAnimationFrame(loop);
-          }
-          requestAnimationFrame(loop);
-        }
-      }
-    } else if (this.remote && this.url.indexOf("http://") == 0) {
+    enumerateDevices() {
       var self = this;
-      var espCamImg = document.createElement('img');
-      espCamImg.width = 224;
-      espCamImg.height = 224;
-      espCamImg.setAttribute("crossOrigin", 'Anonymous');
-      var camSnapshotDelay = 0.5;
-      var param = this.url.indexOf("?");
-      if (param > 0) {
-        camSnapshotDelay = parseFloat(this.url.substring(param + 1)) * 1000;
-        this.url = this.url.substring(0, param);
-      }
-      espCamImg.src = this.url;
-      var ctx = canvas.getContext('2d');
-      espCamImg.onload = function () {
-        self.drawRotated(canvas, espCamImg, 90);
-        if (typeof callback == 'function') {
-          callback(canvas);
+      return new Promise(function (resolve, reject) {
+        navigator.mediaDevices.enumerateDevices()
+          .then(function (o) {
+            self.gotDevices(self, o);
+            resolve();
+          }).catch(self.handleError);
+      });
+    }
+
+    gotDevices(self, deviceInfos) {
+      for (var i = 0; i !== deviceInfos.length; ++i) {
+        var deviceInfo = deviceInfos[i];
+        if (deviceInfo.kind === 'videoinput') {
+          self.cameraList.push(deviceInfo);
         }
+      }
+    }
+
+    async startCam() {
+      switch (this.camType) {
+        case webCam:
+          await this.enumerateDevices();
+          if (window.stream) {
+            window.stream.getTracks().forEach(function (track) {
+              track.stop();
+            });
+          }
+          var deviceId = 0;
+          try {
+            deviceId = this.cameraList[this.camType].deviceId;
+          } catch (e) {
+            console.log("can't found camType:", this.camType, "error:", e);
+            console.log(this.cameraList);
+          }
+          var constraints = {
+            video: {
+              deviceId: { exact: deviceId }
+            }
+          };
+          var self = this;
+          navigator.mediaDevices.getUserMedia(constraints).
+          then(function (stream) {
+            if (self.video) {
+              self.video.srcObject = stream;
+            }
+          }).catch(function (error) {
+            console.log('Error: ', error);
+          });
+          break;
+          /* WebRTC */
+        case wsCam:
+          console.log("WebRTC:", this.camType);
+          ConnectWebSocket(this.URL);
+          break;
+        case jpgCam:
+          // http://192.168.43.201:9966/ok.png
+          console.log("JPGCam:", this.camType);
+          console.log("URL:", this.URL);
+          break;
+      }
+    }
+
+    getEle(eleOrId) {
+      return typeof eleOrId === 'object' ?
+        eleOrId : document.getElementById(eleOrId);
+    }
+
+    onImage(imageId_or_ele, callback) {
+      var self = this;
+      var image = this.getEle(imageId_or_ele);
+      image.setAttribute("crossOrigin", 'Anonymous');
+      var camSnapshotDelay = 0.5;
+      var param = this.URL.indexOf("?");
+      if (param > 0) {
+        camSnapshotDelay = parseFloat(this.URL.substring(param + 1)) * 1000;
+        this.URL = this.URL.substring(0, param);
+      }
+      image.src = this.URL;
+      image.onload = function () {
+        //self.drawRotated(canvas, image, 90);
         setTimeout(function () {
-          espCamImg.src = self.url + "?" + Math.random();
+          if (typeof callback == 'function') {
+            callback(image);
+          }
+          image.src = self.URL + "?" + Math.random();
         }, camSnapshotDelay);
       }
-    } else {
-      this.onStream(function (stream) {
-        video.srcObject = stream;
-        var loop = function () {
-          canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
-            0, 0, canvas.width, canvas.height);
-          if (typeof callback == 'function')
-            callback(canvas);
-          requestAnimationFrame(loop);
+    }
+
+    onCanvas(eleOrId, callback) {
+      var self = this;
+      var canvas = self.getEle(eleOrId);
+      buttonTrigger(canvas, function () {
+        self.startCam();
+        switch (self.camType) {
+          case webCam:
+          case wsCam:
+            var video = self.createVideo();
+            window.remoteVideo = self.video = video;
+            video.onloadeddata = function () {
+              var loop = function () {
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
+                  0, 0, canvas.width, canvas.height);
+                if (typeof callback == 'function') {
+                  callback(canvas);
+                }
+                requestAnimationFrame(loop);
+              }
+              requestAnimationFrame(loop);
+            }
+            break;
+          case jpgCam:
+            self.onImage(document.createElement('img'), function (img) {
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+              if (typeof callback == 'function') {
+                callback(canvas);
+              }
+            });
+            break;
         }
-        requestAnimationFrame(loop);
       });
     }
+
+    toVideo(eleOrId) {
+      var self = this;
+      window.remoteVideo = self.video = this.getEle(eleOrId);
+      buttonTrigger(self.video, function () {
+        self.startCam();
+      });
+    }
+
+    createVideo() {
+      var video = document.createElement('video');
+      video.autoplay = true;
+      return video;
+    }
+
+    drawRotated(canvas, image, degrees) {
+      var context = canvas.getContext('2d');
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.save();
+      context.translate(canvas.width / 2, canvas.height / 2);
+      context.rotate(degrees * Math.PI / 180);
+      context.drawImage(image, -image.width / 2, -image.width / 2);
+      context.restore();
+    }
   }
-}
+
+  function buttonTrigger(ele, callback) {
+    if (navigator.userAgent.indexOf("Chrome") < 0) {
+      var btn = document.createElement("BUTTON");
+      btn.setAttribute("style", "background-color: #e0f0e0;position: absolute;z-index:2;font-size:32px");
+      document.getElementsByTagName("body")[0].append(btn);
+      var rect = ele.getBoundingClientRect();
+      btn.style.top = rect.top;
+      btn.style.left = rect.left;
+      btn.style.width = rect.width;
+      btn.style.height = rect.height;
+      btn.innerHTML = "Start Camera";
+      btn.addEventListener('click', function (e) {
+        btn.parentNode.removeChild(btn);
+        callback();
+      });
+    } else {
+      callback();
+    }
+  }
+
+  return Camera;
+})();

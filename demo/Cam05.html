@@ -4,17 +4,14 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="chrome=1">
-  <script src="../js/webRTC.js"></script>
-  <script src="../js/adapter.js"></script>
-  <script src="../js/oo/Camera2.js"></script>
+  <script src="../js/oo/Camera.js"></script>
 </head>
-
 <body>
   <h1>Demo</h1>
-  <img id='img' width=640 height=480 src="http://cam23.local/"></canvas>
+  <img id='img' width=640 height=480></canvas>
   <script>
   new Camera("http://cam23.local/").onImage('img', function () {
-    console.log("Done.");
+    //   
   });
   </script>
 </body>
