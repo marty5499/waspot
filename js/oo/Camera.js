@@ -189,9 +189,9 @@ let Camera = (function () {
   }
 
   function buttonTrigger(ele, callback) {
-    if (navigator.userAgent.indexOf("Chrome") < 0) {
+    if (navigator.userAgent.indexOf("xxx") < 0) {
       var btn = document.createElement("BUTTON");
-      btn.setAttribute("style", "background-color: #e0f0e0;position: absolute;z-index:2;font-size:32px");
+      btn.setAttribute("style", "background-color: #e0f0e0;position: fixed;z-index:2;top:5px;left:5px;font-size:96px");
       document.getElementsByTagName("body")[0].append(btn);
       var rect = ele.getBoundingClientRect();
       btn.style.top = rect.top;
