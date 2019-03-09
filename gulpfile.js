@@ -7,7 +7,10 @@ const composer = require('gulp-uglify/composer');
 const uglify = composer(uglifyes, console);
 
 function jsmix() {
-  return gulp.src(['js/*.js', 'js/oo/*.js', '!js/jquery.js', '!js/opencv.js'])
+  return gulp.src(
+      ['js/*.js', 'js/oo/*.js',
+        '!js/jquery.js', '!js/opencv.js', '!js/oo/tfjs@0.14.1.js'
+      ])
     .pipe(babel())
     .pipe(concat('waspot.js'))
     .pipe(gulp.dest('dist/es6/'))
