@@ -2,7 +2,19 @@ let Camera = (function () {
   const webCam = 0;
   const wsCam = 1;
   const jpgCam = 2;
+  /*
 
+  var cam = new Camera(0); // camType 0 , 1 , 2 ...
+  // get jpeg from url
+  var cam = new Camera('http://192.168.0.11/jpg');
+  // use raspberryPi camera (rws service)
+  var cam = new Camera('ws://192.168.43.110:8889/rws/ws'); 
+
+  cam.onCanvas('c1', function (c) {
+    console.log("canvas:", c);
+  });
+
+  */
   class Camera {
     // camType: 0,1,2 or http://192.168.0.11/jpg or ws://192.168.43.110:8889/rws/ws
     constructor(camType) {
@@ -104,6 +116,7 @@ let Camera = (function () {
       }
       image.src = this.URL;
       image.onload = function () {
+        console.log("rotate...");
         //self.drawRotated(canvas, image, 90);
         setTimeout(function () {
           if (typeof callback == 'function') {
