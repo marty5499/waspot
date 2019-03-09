@@ -9,7 +9,7 @@ const uglify = composer(uglifyes, console);
 function jsmix() {
   return gulp.src(
       ['js/*.js', 'js/oo/*.js',
-        '!js/jquery.js', '!js/opencv.js', '!js/oo/tfjs@0.14.1.js'
+        '!js/jquery.js', '!js/opencv.js', '!js/tfjs@0.14.1.js'
       ])
     .pipe(babel())
     .pipe(concat('waspot.js'))
@@ -19,7 +19,7 @@ function jsmix() {
 function jsmin() {
   return gulp.src(['dist/es6/waspot.js'])
     .pipe(uglify())
-    .pipe(gulp.dest('dist/'))
+    .pipe(gulp.dest('dist/min/'))
 }
 
 gulp.task(jsmin);

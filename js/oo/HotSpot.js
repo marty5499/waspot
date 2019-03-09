@@ -88,7 +88,6 @@ class Hotspot {
     this.lastPos = false;
     this.setTrackingStep(1); //異動量 1 pixel
     this.setShowArea(showArea);
-    this.objMinSize = 5;
     this.imgList = [];
     this.insideObjList = []; //目前區域內偵測到所有物件的座標
     this.res = {}; //儲存圖片、音效資源
@@ -99,14 +98,38 @@ class Hotspot {
     if (this.startDetect) {
       this.reset();
     } else {
-      this.bs = new cv.BackgroundSubtractorMOG2(500, 2000, false);
+      var history = this.jsonInfo['history'];
+      var varThreshold = this.jsonInfo['varThreshold'];
+      var detectShadows = this.jsonInfo['detectShadows'];
+      this.objMinSize = this.jsonInfo['objMinSize'];
+      this.filter = this.jsonInfo['filter'];
+      if (typeof history == 'undefined') {
+        history = 500;
+      }
+      if (typeof varThreshold == 'undefined') {
+        varThreshold = 100;
+      }
+      if (typeof detectShadows == 'undefined') {
+        detectShadows = false;
+      }
+      if (typeof this.objMinSize == 'undefined') {
+        this.objMinSize = 5;
+      }
+      if (typeof this.filter == 'undefined') {
+        this.filter = ['e3', 'g7', 'd15'];
+      }
+      this.bs = new cv.BackgroundSubtractorMOG2(history, varThreshold, detectShadows);
       self.startDetect = true;
     }
   }
 
+  debug() {
+    this.showDectectCanvas = true;
+  }
+
   reset() {
     var self = this;
-    this.bs = new cv.BackgroundSubtractorMOG2(500, 2100, false);
+    this.bs = new cv.BackgroundSubtractorMOG2(500, 160, false);
     this.lastPos = false;
     self.firstDetect = true;
     self.resetImageCollision();
@@ -184,11 +207,25 @@ class Hotspot {
     let src = cv.matFromImageData(this.getImageData());
     let dstx = new this.cv.Mat();
     this.bs.apply(src, dstx, 0); //去背偵測物件
-    //dstx = this.imgFilter.erosion(dstx, 3);
-    dstx = this.imgFilter.gaussianBlur(dstx, 7);
-    //dstx = this.imgFilter.erosion(dstx, 12);
-    dstx = this.imgFilter.dilation(dstx, 15);
-
+    for (var i in this.filter) {
+      var key = this.filter[i];
+      var value = parseInt(key.substring(1));
+      key = key.substring(0, 1);
+      switch (key) {
+        case 'e':
+          dstx = this.imgFilter.erosion(dstx, value);
+          break;
+        case 'g':
+          dstx = this.imgFilter.gaussianBlur(dstx, value);
+          break;
+        case 'd':
+          dstx = this.imgFilter.dilation(dstx, value);
+          break;
+      }
+    }
+    if (this.showDectectCanvas) {
+      cv.imshow('c2', dstx);
+    }
     if (!this.startDetect) {
       src.delete()
       dstx.delete();

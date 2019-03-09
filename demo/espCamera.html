@@ -13,11 +13,11 @@
   <canvas id='c1' width=400 height=300></canvas>
   <script>
   var canvasId = 'c1';
-  var esp32 = "http://192.168.0.168/jpg?0.25";
+  var esp32 = "http://cam23.local/jpg?0.25";
   var canvas1 = document.getElementById('c1');
 
   new Camera(esp32).onCanvas(canvasId, function (canvas) {
-  	console.log("img..");
+    console.log("img..");
   });
   </script>
 </body>

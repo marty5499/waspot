@@ -8,12 +8,11 @@
 
 <body>
   <h1>Camera to Canvas Demo</h1>
-  <canvas id='c1' width=640 height=480></canvas>
+  <canvas id='c1' width=320 height=240></canvas>
   <script>
-  var cam = new Camera(0);
-  cam.onCanvas('c1', function (c) {
-    console.log("canvas:", c);
-  });
+  var cam1 = new Camera("http://cam23.local/jpg_stream?0.15");
+  cam1.setRotate(90);
+  cam1.onCanvas('c1', function (c) {});
   </script>
 </body>
 

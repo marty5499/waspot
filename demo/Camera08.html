@@ -22,8 +22,10 @@
   var bs, work = false;
   var filter = new ImageFilter(cv);
   var canvas1 = document.getElementById('c1');
+
+  
   var tracking = new Hotspot(canvas1, canvas1, true, 
-                              20, 20, 200, 20, 200, 200, 20, 200);
+                              120, 120, 230, 120, 230, 230, 120, 230);
   tracking.setCvProcess(filter);
 
   tracking.inside(function (pos) {
@@ -34,7 +36,10 @@
     tracking.setStroke(3, "#FF0000");
   });
 
-  new Camera("ws://tf.local:8889/rws/ws").onCanvas(canvasId, function (canvas) {
+
+  var cam = new Camera("http://192.168.1.114/jpg?0.25");
+  cam.setRotate(90);
+  cam.onCanvas(canvasId, function (canvas) {
     tracking.scan();
   });
 

@@ -1,4 +1,4 @@
-export class CaptureCanvas {
+class CaptureCanvas {
 
   constructor(label, canvasId, insertEle) {
     console.log("create CaptureCanvas");
