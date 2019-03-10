@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <script src="../js/webRTC.js"></script>
+  <script src="../js/adapter.js"></script>
+  <script src="../js/oo/Camera.js"></script>
+  <script src="../js/oo/ImageFilter.js"></script>
+  <script src="../js/oo/Hotspot.js"></script>
+  <script src="../js/oo/HotBlock.js"></script>
+  <script src="../js/oo/TouchGame.js"></script>
+  <script src="../js/opencv.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <style>
+  canvas {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+  }
+  </style>
+</head>
+
+<body>
+  <h1>Hotspot section detect from WebRTC</h1>
+  <canvas id='c1' width=640 height=480></canvas>
+  <canvas id='c2' width=320 height=240></canvas>
+  <script>
+  var hot = new HotBlock('c1');
+  var game = new TouchGame(hot);
+  var cam = new Camera(0);
+  game.start();
+  cam.onCanvas('c1', function (canvas) {
+    game.scan();
+  });
+  </script>
+</body>
+
+</html>

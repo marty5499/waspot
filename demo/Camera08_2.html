@@ -16,16 +16,29 @@
 
 <body>
   <h1>Hotspot section detect from WebRTC</h1>
-  <canvas id='c1' width=320 height=240 style='border-style: outset'></canvas>
-  <canvas id='c2' width=320 height=240 style='border-style: outset;'></canvas>
+  <canvas id='c1' width=320 height=240></canvas>
+  <canvas id='c2' width=320 height=240></canvas>
   <script>
-  var hot = new HotBlock('c1', 'c2');
-  var cam = new Camera("http://192.168.1.114/jpg?0.25");
+  var hot = new HotBlock('c1');
+  //var cam = new Camera("http://192.168.1.114/jpg?0.25");
+  var cam = new Camera(1);
   //cam.setRotate(90);
-  hot.start();
 
-  hot.addBlock({"area": [10, 10, 310, 230]}, {
+  hot.addBlock({
+    "id":"b1",
+    "area": [10, 10, 200, 200],
+    "history": 1000,
+    "varThreshold": 100,
+    "detectShadows": false,
+    "objMinSize": 3,
+    "filter": ["e3", "g1", "e2", "d5"]
+  }, {
     "inside": function (pos) {
+      var c = document.getElementById("c1");
+      var ctx = c.getContext("2d");
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, pos.radius, 0, 2 * Math.PI);
+      ctx.stroke();
       console.log("Obj1:", pos);
       this.setStroke(3, "#00FF00");
     },
@@ -33,17 +46,8 @@
       this.setStroke(3, "#FF0000");
     }
   });
-  /*
-  hot.addBlock(220, 120, 310, 200, {
-    "inside": function (pos) {
-      console.log("Obj2:", pos);
-      this.setStroke(3, "#FFFF00");
-    },
-    "outside": function (pos) {
-      this.setStroke(3, "#FF0000");
-    }
-  });
-  */
+
+  hot.start();
   cam.onCanvas('c1', function (canvas) {
     hot.scan();
   });

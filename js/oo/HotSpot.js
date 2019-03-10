@@ -137,6 +137,10 @@ class Hotspot {
 
   stop() {
     this.startDetect = false;
+    this.canvas.remove();
+    //var x = document.body.removeChild(this.canvas);
+    //x.remove();
+    //console.log("remove ok:",x);
   }
 
   setShowArea(b) {

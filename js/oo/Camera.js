@@ -3,16 +3,15 @@ let Camera = (function () {
   const wsCam = 1;
   const jpgCam = 2;
   /*
-  var cam = new Camera(0); // camType 0 , 1 , 2 ...
-  // get jpeg from url
-  var cam = new Camera('http://192.168.0.11/jpg');
-  // use raspberryPi camera (rws service)
-  var cam = new Camera('ws://192.168.43.110:8889/rws/ws'); 
+    var cam = new Camera(0); // camType 0 , 1 , 2 ...
+    // get jpeg from url
+    var cam = new Camera('http://192.168.0.11/jpg');
+    // use raspberryPi camera (rws service)
+    var cam = new Camera('ws://192.168.43.110:8889/rws/ws'); 
 
-  cam.onCanvas('c1', function (c) {
-    console.log("canvas:", c);
-  });
-
+    cam.onCanvas('c1', function (c) {
+      console.log("canvas:", c);
+    });
   */
   class Camera {
     // webCam: 0,1,2
@@ -20,6 +19,7 @@ let Camera = (function () {
     // wsCam:  ws://192.168.43.110:8889/rws/ws
     constructor(camType) {
       this.setCamType(camType);
+      this.setFlip(false);
     }
 
     setCamType(camType) {
@@ -40,6 +40,10 @@ let Camera = (function () {
 
     setRotate(bool) {
       this.rotate = bool;
+    }
+
+    setFlip(bool) {
+      this.flip = bool;
     }
 
     enumerateDevices() {

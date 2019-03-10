@@ -1,7 +1,6 @@
 class HotBlock {
 
   constructor(canvasEleOrId, canvasEleOrId2) {
-    console.log("arguments.length :", arguments.length);
     if (typeof canvasEleOrId == 'string') {
       this.canvas = document.getElementById(canvasEleOrId);
     } else {
@@ -21,15 +20,24 @@ class HotBlock {
     this.trackingList = [];
   }
 
+  delBlock(blockId) {
+    var tracking = this.trackingList[blockId];
+    if (typeof tracking == "undefined") return;
+    tracking.stop();
+    delete this.trackingList[blockId];
+  }
+
   addBlock(jsonInfo, callback) {
+    this.delBlock(jsonInfo['id']);
     var x1 = jsonInfo['area'][0];
     var y1 = jsonInfo['area'][1];
     var x2 = jsonInfo['area'][2];
     var y2 = jsonInfo['area'][3];
     var tracking = new Hotspot(this.canvas, this.canvas2, true,
       x1, y1, x2, y1, x2, y2, x1, y2);
+    tracking.blockId = jsonInfo['id'];
     tracking.jsonInfo = jsonInfo;
-    
+
     if (this.debug) {
       tracking.debug();
     }
@@ -41,7 +49,7 @@ class HotBlock {
     if (typeof callback['outside'] == "function") {
       tracking.outside(callback['outside']);
     }
-    this.trackingList.push(tracking);
+    this.trackingList[tracking.blockId] = tracking;
   }
 
   scan() {
@@ -53,13 +61,12 @@ class HotBlock {
 
   start() {
     var self = this;
-    setTimeout(function () {
-      for (var i in self.trackingList) {
-        var tracking = self.trackingList[i];
-        tracking.start();
-        tracking.out();
-      }
-      console.log("start...");
-    }, 3000);
+    //setTimeout(function () {
+    for (var i in self.trackingList) {
+      var tracking = self.trackingList[i];
+      tracking.start();
+      tracking.out();
+    }
+    console.log("start...");
   }
 }
