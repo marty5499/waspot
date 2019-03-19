@@ -2,6 +2,7 @@ let Camera = (function () {
   const webCam = 0;
   const wsCam = 1;
   const jpgCam = 2;
+  const imgStreamCam = 3;
   /*
     var cam = new Camera(0); // camType 0 , 1 , 2 ...
     // get jpeg from url
@@ -29,7 +30,11 @@ let Camera = (function () {
         if (camType.indexOf("ws://") == 0) {
           this.camType = wsCam;
         } else if (camType.indexOf("http://") == 0) {
-          this.camType = jpgCam;
+          if (camType.indexOf(":81/stream") > 0) {
+            this.camType = imgStreamCam;
+          } else {
+            this.camType = jpgCam;
+          }
           this.rotate = false;
         }
       } else {
@@ -107,6 +112,11 @@ let Camera = (function () {
           console.log("JPGCam:", this.camType);
           console.log("URL:", this.URL);
           break;
+        case imgStreamCam:
+          // http://192.168.43.201:9966/ok.png
+          console.log("imgStreamCam:", this.camType);
+          console.log("URL:", this.URL);
+          break;
       }
     }
 
@@ -126,6 +136,7 @@ let Camera = (function () {
         this.URL = this.URL.substring(0, param);
       }
       image.src = this.URL;
+      console.log("camSnapshotDelay:", camSnapshotDelay);
       image.onload = function () {
         setTimeout(function () {
           if (typeof callback == 'function') {
@@ -152,7 +163,7 @@ let Camera = (function () {
                 ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
                   0, 0, canvas.width, canvas.height);
                 if (typeof callback == 'function') {
-                  callback(canvas);
+                  callback(canvas, video);
                 }
                 requestAnimationFrame(loop);
               }
@@ -171,6 +182,23 @@ let Camera = (function () {
                 callback(canvas);
               }
             });
+            break;
+          case imgStreamCam:
+            var ele = document.createElement('img');
+            ele.src = self.URL;
+            ele.setAttribute("crossOrigin", 'Anonymous');
+            ele.style.display = 'none';
+            document.getElementsByTagName("body")[0].append(ele);
+            var ctx = canvas.getContext('2d');
+            var loop = function () {
+              // ctx.drawImage(ele, 0, 0, ele.width, ele.height,0, 0, canvas.width, canvas.height);
+              self.drawRotated(canvas, ele, self.rotate);
+              if (typeof callback == 'function') {
+                callback(canvas);
+              }
+              requestAnimationFrame(loop);
+            }
+            requestAnimationFrame(loop);
             break;
         }
       });
@@ -206,7 +234,7 @@ let Camera = (function () {
     }
 
     buttonTrigger(ele, callback) {
-      if (this.camType != 0 && this.camType != jpgCam) {
+      if (this.camType != 0 && this.camType != jpgCam && this.camType != imgStreamCam) {
         var btn = document.createElement("BUTTON");
         btn.setAttribute("style", "background-color: #e0f0e0;position: fixed;z-index:2;top:5px;left:5px;font-size:96px");
         document.getElementsByTagName("body")[0].append(btn);
