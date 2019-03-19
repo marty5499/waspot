@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "license": "",
   "scripts": {
-    "http": "budo --live --port 9966 --host ::",
+    "http": "budo --live --cors --port 9966 --host ::",
     "https": "budo --ssl --cors --live --port 9967 --host ::",
     "main": "budo --live --host :: & budo --ssl --cors --live --host ::",
-    "start": "budo --live --host :: & budo --ssl --cors --live --host ::"
+    "start": "budo --live --cors --host :: & budo --ssl --cors --live --host ::"
   },
   "browserify": {
     "transform": [

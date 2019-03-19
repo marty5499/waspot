@@ -1,0 +1,69 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="../js/oo/Camera.js"></script>
+  <script src="../js/oo/HotSpot.js"></script>
+  <script src="../js/oo/HotBlock.js"></script>
+  <script src="../js/oo/ImageFilter.js"></script>
+  <script src="../js/opencv.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/handtrackjs/dist/handtrack.min.js"> </script>
+</head>
+
+<body>
+  <h1 id='msg'>Cam32</h1>
+  <canvas id='c1' width=640 height=480></canvas>
+  <script>
+  // 啟動 Camera
+  //var cam = new Camera("http://webduino.tw/view/cam25");
+  //var cam = new Camera("http://webduino.tw/view/cam08");
+  //var cam = new Camera("http://192.168.0.225:81/stream");
+  var cam = new Camera("http://cam23.local:81/stream");
+  var cam = new Camera(0);
+
+  const modelParams = {
+    flipHorizontal: true, // flip e.g for video 
+    imageScaleFactor: 0.7, // reduce input image size .
+    maxNumBoxes: 20, // maximum number of boxes to detect
+    iouThreshold: 0.5, // ioU threshold for non-max suppression
+    scoreThreshold: 0.9, // confidence threshold for predictions.
+  }
+
+
+  /*
+    [{
+    bbox: [x, y, width, height],
+    class: "hand",
+    score: 0.8380282521247864
+    }, {
+      bbox: [x, y, width, height],
+      class: "hand",
+      score: 0.74644153267145157
+    }]
+  */
+  handTrack.load(modelParams).then(model => {
+    var hands = [];
+    cam.onCanvas('c1', function (canvas) {
+      var ctx = canvas.getContext("2d");
+      ctx.beginPath();
+      ctx.strokeStyle = "#FF0000";
+      while (hands.length > 0) {
+        var hand = hands.pop();
+        //flip
+        hand[0] = canvas.width - (hand[0] + hand[2]);
+        ctx.rect(hand[0], hand[1], hand[2], hand[3]);
+      }
+      ctx.stroke();
+      model.detect(canvas).then(predictions => {
+        var amt = predictions.length;
+        for (var i = 0; i < amt; i++) {
+          hands.push(predictions[i]['bbox']);
+        }
+      });
+    });
+  });
+  </script>
+</body>
+
+</html>

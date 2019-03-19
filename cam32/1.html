@@ -1,0 +1,50 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="../dist/min/waspot.js"></script>
+  <script src="../js/opencv.js"></script>
+</head>
+
+<body>
+  <h1>Cam32</h1>
+  <canvas id='c1' width=640 height=480></canvas>
+  <script>
+  var hot = new HotBlock('c1');
+  // 新增一個熱區，設定偵測區塊大小
+  // 熱區有東西進去時觸發 inside，pos 物件包含 x,y,radius (物件大小)
+  var cnt = 0;
+  hot.addBlock({
+    "id": "b1",
+    "area": [380, 100, 600, 350],
+    "history": 1000,
+    "varThreshold": 100,
+    "detectShadows": false,
+    "objMinSize": 20,
+    "filter": ["e3", "g1", "e2", "d5"]
+  }, {
+    "inside": function (pos) {
+      if (++cnt > 1) {
+      	console.log("nini coming...",pos.radius);
+        this.setStroke(3, "#00FF00");
+      }
+    },
+    "outside": function (pos) {
+      cnt = 0;
+      this.setStroke(3, "#FF0000");
+    }
+  });
+
+
+  // 啟動 hotBlock
+  hot.start();
+  // 啟動 Camera
+  var cam = new Camera("http://webduino.tw/view/cam25");
+  cam.onCanvas('c1', function (canvas) {
+    hot.scan();
+  });
+  </script>
+</body>
+
+</html>

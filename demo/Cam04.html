@@ -13,7 +13,8 @@
   <h1>WebRTC Demo</h1>
   <canvas id='c1' width=640 height=480></canvas>
   <script>
-  new Camera("ws://192.168.1.113:8889/rws/ws").onCanvas('c1');
+  //new Camera("ws://192.168.0.82:8889/rws/ws").onCanvas('c1');
+  new Camera("http://192.168.0.137:81/stream").onCanvas('c1');
   </script>
 </body>
 
