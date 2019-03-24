@@ -40,7 +40,8 @@
   // 啟動 hotBlock
   hot.start();
   // 啟動 Camera
-  var cam = new Camera("http://webduino.tw/view/cam25");
+  var cam = new Camera("http://webduino.tw/view/cam23");
+  var cam = new Camera("http://cam23.local:81/stream");
   cam.onCanvas('c1', function (canvas) {
     hot.scan();
   });

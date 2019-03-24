@@ -45,7 +45,7 @@
   var bs, work = false;
   var filter = new ImageFilter(cv);
   var camIdx = location.hash == '' ? 0 : location.hash.substring(1);
-  new Camera(camIdx).onCanvas(canvasId, function (canvas) {
+  new Camera("http://webduino.tw/view/cam25").onCanvas(canvasId, function (canvas) {
     test2(canvasId);
   });
 
