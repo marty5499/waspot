@@ -1,0 +1,21 @@
+<html>
+<head>
+  <script src="../js/oo/camera.js"></script>
+</head>
+<body>
+  <canvas id='c' width=640 height=480></canvas>
+  <script>
+    // WebCam
+    new Camera(0).onCanvas('c');
+
+    // WebRTC
+    //new Camera("ws://10.0.1.112:8889/rws/ws").onCanvas('c');
+
+    // ESP32 Cam ( stream )
+    //new Camera("http://192.168.0.121:81/stream").onCanvas('c');
+
+    // ESP32 Cam (MJPEG)
+    //new Camera("http://webduino.tw/view/cam18").onCanvas('c');
+  </script>
+</body>
+</html>

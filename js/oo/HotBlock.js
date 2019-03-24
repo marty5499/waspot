@@ -59,14 +59,15 @@ class HotBlock {
     }
   }
 
-  start() {
+  startAfter(delay) {
     var self = this;
-    //setTimeout(function () {
-    for (var i in self.trackingList) {
-      var tracking = self.trackingList[i];
-      tracking.start();
-      tracking.out();
-    }
-    console.log("start...");
+    setTimeout(function () {
+      console.log("start...");
+      for (var i in self.trackingList) {
+        var tracking = self.trackingList[i];
+        tracking.start();
+        tracking.out();
+      }
+    }, delay);
   }
 }

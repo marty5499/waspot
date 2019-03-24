@@ -1,5 +1,8 @@
 class ColorROI {
   constructor(srcCanvas, dstCanvas, showArea, poly) {
+    if (poly.length == 4) {
+      poly = [poly[0], poly[1], poly[2], poly[1], poly[2], poly[3], poly[0], poly[3]];
+    }
     this.poly = poly;
     this.showArea = showArea;
     this.tracking = {};
@@ -72,22 +75,18 @@ class ColorROI {
     }
   }
 
-  trackingHSV(key, vColor) {
+  trackingHSV(key, range) {
     this.procCtx.drawImage(this.srcCanvas, 0, 0);
     let srcsrc = cv.imread(this.procCanvas.id);
     let rect = new cv.Rect(this.scanX, this.scanY, this.scanWidth, this.scanHeight);
     let src = srcsrc.roi(rect);
     let dstx = new cv.Mat();
     cv.cvtColor(src, src, cv.COLOR_RGB2HSV, 0);
-    let range = {
-      "low": [parseFloat(vColor.a1m), parseFloat(vColor.a2m), parseFloat(vColor.a3m), 0],
-      "high": [parseFloat(vColor.b1m), parseFloat(vColor.b2m), parseFloat(vColor.b3m), 255]
-    };
     let low = new cv.Mat(src.rows, src.cols, src.type(), range.low);
     let high = new cv.Mat(src.rows, src.cols, src.type(), range.high);
     cv.inRange(src, low, high, dstx);
-    dstx = this.filter.erosion(dstx, parseFloat(vColor.em));
-    dstx = this.filter.dilation(dstx, parseFloat(vColor.dm));
+    dstx = this.filter.erosion(dstx, range.erosion);
+    dstx = this.filter.dilation(dstx, range.dilation);
     // check ball exists !
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
@@ -139,29 +138,6 @@ class ColorROI {
       this.dstCtx.lineTo(a.x - this.lineWidth * 2 + offsetX, a.y - this.lineWidth * 2 + offsetY);
       this.dstCtx.stroke();
     }
-  }
-
-  drawTest(feeling, pos, style) {
-    style = "#FFFFFF";
-    var ctx;
-    if (typeof ti != 'undefined') {
-      pos.x = ti.getScreenPoint(pos.x, pos.y).x;
-      pos.y = ti.getScreenPoint(pos.x, pos.y).y;
-    }
-    if (this.srcCanvas == this.dstCanvas) {
-      ctx = this.srcCtx;
-    } else {
-      ctx = this.dstCtx;
-      var scanX = ti.getScreenPoint(this.scanX, this.scanY).x;
-      var scanY = ti.getScreenPoint(this.scanX, this.scanY).y;
-      var xx = ti.getScreenPoint(this.scanX + this.scanWidth, this.scanY + this.scanHeight).x;
-      var yy = ti.getScreenPoint(this.scanX + this.scanWidth, this.scanY + this.scanHeight).y;
-      ctx.clearRect(scanX, scanY, xx - scanX, yy - scanY);
-    }
-    ctx.beginPath();
-    ctx.fillStyle = style;
-    ctx.arc(pos.x, pos.y, pos.radius, 0, 2 * Math.PI);
-    ctx.fill();
   }
 
   draw(feeling, pos, style, offsetX, offsetY, offsetR) {

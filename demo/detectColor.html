@@ -1,0 +1,39 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="../dist/min/waspot.js"></script>
+  <script src="../js/opencv.js"></script>
+</head>
+
+<body>
+  <h2>顏色追蹤</h2>
+  <canvas id='c1' width=640 height=480 style="width:45%"></canvas>
+  <script>
+  var canvas = document.getElementById('c1');
+  var roi = new ColorROI(canvas, canvas, true, [100, 100, 320, 240]);
+
+  roi.addTrackingHSV("yellow", {
+    "low": [13, 69, 50, 0],
+    "high": [32, 255, 255, 255],
+    "erosion": 0,
+    "dilation": 6
+  });
+
+  roi.onColor(function (key, pos) {
+    if (key == 'yellow' && pos.radius > 50) {
+      this.srcCtx.fillStyle = "#FFFF00";
+      roi.draw("sad", pos);
+    }
+  });
+
+  roi.start();
+
+  new Camera(0).onCanvas('c1', function (canvas) {
+    roi.scan();
+  });
+  </script>
+</body>
+
+</html>

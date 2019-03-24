@@ -8,57 +8,97 @@
   <script src="../js/oo/Camera.js"></script>
   <script src="../js/oo/ImageFilter.js"></script>
   <script src="../js/opencv.js"></script>
+  <style>
+    #set {
+      padding:5px 15px; 
+      background:#ccc; border:0 none;
+      cursor:pointer;
+      -webkit-border-radius: 5px;
+      border-radius: 5px; 
+      font-size:1.2em;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 160px;
+      height: 20px;
+      margin: 10px 50px;
+      background: linear-gradient(to right, #16a085 0%, #16a085 100%);
+      background-size: 150px 10px;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow: hidden;
+      outline: none;
+      zoom: 130%;
+      margin: auto;
+      margin-bottom: 30px;
+    }    
+
+    span {
+      position:relative;
+      width: 60px; display: inline-block;
+      top:-5px;
+    }
+    div {
+      height:30px;
+    }
+</style>
 </head>
 
 <body>
-  <h1>OpenCV Demo</h1>
+  <h1>Color Picker</h1>
   <canvas id='c1' width=480 height=320></canvas>
   <canvas id='c2' width=480 height=320></canvas>
-  <div>Lower
-    <br>
+  <div><span>Lower</span>
     <input id='a1' type="range" min="1" max="180" value="50" oninput="showVal(this)">
-    H(min):<span id='a1m'>50</span>
+    <span id='a1m'>50</span>
     <input id='a2' type="range" min="1" max="255" value="50" oninput="showVal(this)">
-    S(min):<span id='a2m'>50</span>
+    <span id='a2m'>50</span>
     <input id='a3' type="range" min="1" max="255" value="50" oninput="showVal(this)">
-    V(min):<span id='a3m'>50</span>
+    <span id='a3m'>50</span>
   </div>
-  <div>Higher
-    <br>
+  <div><span>Higher</span>
     <input id='b1' type="range" min="1" max="180" value="150" oninput="showVal(this)">
-    H(max):<span id='b1m'>150</span>
+    <span id='b1m'>150</span>
     <input id='b2' type="range" min="1" max="255" value="150" oninput="showVal(this)">
-    S(max):<span id='b2m'>150</span>
+    <span id='b2m'>150</span>
     <input id='b3' type="range" min="1" max="255" value="150" oninput="showVal(this)">
-    V(max):<span id='b3m'>150</span>
+    <span id='b3m'>150</span>
   </div>
-  <div>erosion
+  <div><span>erosion</span>
     <input id='e' type="range" min="0" max="100" value="0" oninput="showVal(this)">
     <span id='em'>0</span>
   </div>
-  <div>dilation
+  <div><span>dilation</span>
     <input id='d' type="range" min="0" max="100" value="0" oninput="showVal(this)">
     <span id='dm'>0</span>
+  </div>
+  <div>setting: <input id='set' type="input" size='80'>
   </div>
   <script>
   var canvasId = 'c1';
   var bs, work = false;
   var filter = new ImageFilter(cv);
   var camIdx = location.hash == '' ? 0 : location.hash.substring(1);
-  new Camera("http://webduino.tw/view/cam25").onCanvas(canvasId, function (canvas) {
+  new Camera(camIdx).onCanvas(canvasId, function (canvas) {
     test2(canvasId);
   });
 
-  //黃色 {"a1m":"18","a2m":"94","a3m":"50","b1m":"42","b2m":"251","b3m":"255","em":"6","dm":"11"}
-  //藍色 {"a1m":"93","a2m":"94","a3m":"50","b1m":"125","b2m":"255","b3m":"255","em":"5","dm":"8"}
-  //綠色  {"a1m":"56","a2m":"69","a3m":"50","b1m":"91","b2m":"255","b3m":"255","em":"8","dm":"19"}
-  //紅色 {"a1m":"149","a2m":"111","a3m":"46","b1m":"180","b2m":"222","b3m":"167","em":"8","dm":"15"}
-  vColor = { "a1m": "56", "a2m": "69", "a3m": "50", "b1m": "91", "b2m": "255", "b3m": "255", "em": "0", "dm": "0" };
+  vColor = { "a1m": "1", "a2m": "69", "a3m": "50", "b1m": "91", "b2m": "255", "b3m": "255", "em": "1", "dm": "1" };
 
   function showVal(ele) {
     document.getElementById(ele.id + 'm').innerHTML = ele.value;
     vColor[ele.id + 'm'] = ele.value;
-    console.log(JSON.stringify(vColor));
+
+    var range = {
+      low: [parseFloat(vColor.a1m), parseFloat(vColor.a2m), parseFloat(vColor.a3m), 0],
+      high: [parseFloat(vColor.b1m), parseFloat(vColor.b2m), parseFloat(vColor.b3m), 255],
+      erosion: parseInt(vColor.em),
+      dilation: parseInt(vColor.dm)
+    };
+    var str = JSON.stringify(range);
+    document.getElementById('set').value = str;
+    console.log(str);
   }
 
   function test1(id) {

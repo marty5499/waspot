@@ -4,22 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="../js/oo/Camera.js"></script>
-  <script src="../js/oo/HotSpot.js"></script>
-  <script src="../js/oo/HotBlock.js"></script>
-  <script src="../js/oo/ImageFilter.js"></script>
-  <script src="../js/opencv.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/handtrackjs/dist/handtrack.min.js"> </script>
+  <script src="../js/handtrack.min.js"> </script>
 </head>
 
 <body>
-  <h1 id='msg'>Cam32</h1>
   <canvas id='c1' width=640 height=480></canvas>
   <script>
   // 啟動 Camera
-  //var cam = new Camera("http://webduino.tw/view/cam25");
-  //var cam = new Camera("http://webduino.tw/view/cam08");
-  //var cam = new Camera("http://192.168.0.225:81/stream");
-  var cam = new Camera("http://cam23.local:81/stream");
   var cam = new Camera(0);
 
   const modelParams = {
@@ -29,7 +20,6 @@
     iouThreshold: 0.5, // ioU threshold for non-max suppression
     scoreThreshold: 0.9, // confidence threshold for predictions.
   }
-
 
   /*
     [{
@@ -48,6 +38,7 @@
       var ctx = canvas.getContext("2d");
       ctx.beginPath();
       ctx.strokeStyle = "#FF0000";
+      ctx.lineWidth = 5;
       while (hands.length > 0) {
         var hand = hands.pop();
         //flip

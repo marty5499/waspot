@@ -1,0 +1,20 @@
+<html>
+
+<head>
+  <script src="../js/oo/camera.js"></script>
+</head>
+
+<body>
+  <canvas id='c' width=800 height=600></canvas>
+  <script>
+  new Camera(0)
+    .onCanvas('c', function (c) {
+      var ctx = c.getContext("2d");
+      ctx.font = "100px Arial";
+      ctx.fillStyle = "#3aaaa0";
+      ctx.fillText("顯示文字", 30, 120);
+    });
+  </script>
+</body>
+
+</html>
