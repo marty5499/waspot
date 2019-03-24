@@ -7,42 +7,22 @@
 
 <body>
   <h1>範例展示</h1>
-  <div id='https'>
-    <h2>以下需使用 https 協定</h2>
-    <a href="/demo/list.html">列出可使用的Camera</a>
-    <br>
-    <a href="/demo/Camera02.html">影像輸出到 canvas 標籤</a>
-    <br>
-    <a href="/demo/Camera03.html">影像輸出到 canvas，並在左上角畫一個笑臉</a>
-    <br>
-    <a href="/demo/Camera04.html">OpenCV: 色域轉換</a>
-    <br>
-    <a href="/demo/Camera05.html">OpenCV: 高斯背景</a>
-    <br>
-    <a href="/demo/Camera11.html">OpenCV: 色域萃取</a>
-    <br>
-    <a href="/tools/tools.html">OpenCV: 影像處理工具</a>
-    <br>
-    <a href="/demo/Camera06.html">應用範例: 熱區偵測</a>
-    <br>
-    <br>
+  <a href="/demo/camera.html">使用 WebCam</a>
+  <br>
+  <a href="/demo/canvas.html">在 Canvas上畫圖</a>
+  <br>
+  <a href="/demo/detectBlock.html">熱區偵測</a>
+  <br>
+  <a href="/demo/detectHand.html">雙手偵測</a>
+  <br>
+  <a href="/demo/detectColor.html">顏色偵測</a>
+  <br>
+  <a href="/demo/pickerColor.html">顏色過濾工具</a>
+  <br>
+  <a href="/tools/tools.html">OpenCV: 影像處理工具</a>
+  <br>
+  <br>
   </div>
-  <div id='http'>
-    <h2> http 協定</h2>
-    <br>
-    <a href="/demo/Camera07.html">Raspberry Pi影像串流</a>
-    <br>
-    <a href="/demo/Camera08.html">OpenCV: WebRTC 熱區偵測</a>
-    <br>
-    <br>
-  </div>
-  <script>
-  if (window.location.protocol == "http:") {
-    https.style.display = "none";
-  } else {
-    http.style.display = "none";
-  }
-  </script>
 </body>
 
 </html>
