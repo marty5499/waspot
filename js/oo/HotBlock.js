@@ -27,6 +27,20 @@ class HotBlock {
     delete this.trackingList[blockId];
   }
 
+  setBlock(area, callback) {
+    this.delBlock("default");
+    this.addBlock({
+      "id": "default",
+      "area": area,
+      "history": 300,
+      "varThreshold": 150,
+      "detectShadows": false,
+      "objMinSize": 3,
+      "filter": ["e1", "d1"]
+    }, callback);
+  }
+
+
   addBlock(jsonInfo, callback) {
     this.delBlock(jsonInfo['id']);
     var x1 = jsonInfo['area'][0];
