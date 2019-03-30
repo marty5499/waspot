@@ -33,6 +33,7 @@ class HotBlock {
       "id": "default",
       "area": area,
       "history": 300,
+      "learningRate": 0,
       "varThreshold": 150,
       "detectShadows": false,
       "objMinSize": 3,

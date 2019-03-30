@@ -103,6 +103,7 @@ class Hotspot {
       var detectShadows = this.jsonInfo['detectShadows'];
       this.objMinSize = this.jsonInfo['objMinSize'];
       this.filter = this.jsonInfo['filter'];
+      this.learningRate = this.jsonInfo['learningRate'];
       if (typeof history == 'undefined') {
         history = 500;
       }
@@ -114,6 +115,9 @@ class Hotspot {
       }
       if (typeof this.objMinSize == 'undefined') {
         this.objMinSize = 5;
+      }
+      if (typeof this.learningRate == 'undefined') {
+        this.learningRate = 0;
       }
       if (typeof this.filter == 'undefined') {
         this.filter = ['e3', 'g7', 'd15'];
@@ -210,7 +214,7 @@ class Hotspot {
 
     let src = cv.matFromImageData(this.getImageData());
     let dstx = new this.cv.Mat();
-    this.bs.apply(src, dstx, 0); //去背偵測物件
+    this.bs.apply(src, dstx, this.learningRate); //去背偵測物件
     for (var i in this.filter) {
       var key = this.filter[i];
       var value = parseInt(key.substring(1));
