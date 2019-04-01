@@ -23,9 +23,9 @@
   hot.addBlock({
     "id": "default",
     "area": [10, 10, 300, 300],
-    "history": 300,
-    "varThreshold": 150,
-    "learningRate": 0.01,
+    "history": 1000,
+    "varThreshold": 300,
+    "learningRate": 0.0001,
     "detectShadows": false,
     "objMinSize": 30,
     "filter": ["e3", "g1", "d3"]
@@ -41,7 +41,7 @@
       this.setStroke(3, "#FF0000");
     }
   });
-  hot.startAfter(500);
+  hot.startAfter(1000);
 
   var cam = new Camera("http://cam99.local:81/stream");
   cam.onCanvas('c1', function (canvas) {
