@@ -12,8 +12,18 @@ let Camera = (function () {
       if (arguments.length == 0) {
         camType = 0;
       }
+      this.isClip = false;
       this.setCamType(camType);
       this.setFlip(false);
+      this.setRotate(0);
+    }
+
+    setClip(x, y, width, height) {
+      this.isClip = true;
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
     }
 
     setCamType(camType) {
@@ -36,8 +46,8 @@ let Camera = (function () {
       }
     }
 
-    setRotate(bool) {
-      this.rotate = bool;
+    setRotate(degrees) {
+      this.rotate = degrees;
       return this;
     }
 
@@ -152,8 +162,12 @@ let Camera = (function () {
     }
 
     onCanvas(eleOrId, callback) {
+      window.hh = 1;
       var self = this;
       var canvas = self.getEle(eleOrId);
+      if (!self.isClip) {
+        self.setClip(0, 0, canvas.width, canvas.height);
+      }
       this.buttonTrigger(canvas, function () {
         self.startCam();
         switch (self.camType) {
@@ -164,8 +178,27 @@ let Camera = (function () {
             video.onloadeddata = function () {
               var loop = function () {
                 var ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
-                  0, 0, canvas.width, canvas.height);
+                var vw = video.videoWidth;
+                var vh = video.videoHeight;
+                var cw = canvas.width;
+                var ch = canvas.height;
+                var sw = cw * vh / ch;
+                var sh = ch * vh / ch;
+                var sx = (vw - sw) / 2;
+                sx = sx * vw / vh;
+                var sy = (vh - sh) / 2;
+                if (self.rotate == 0) {
+                  ctx.drawImage(video, sx, sy, sw, sh,
+                    0, 0, cw, ch);
+                } else {
+                  ctx.save();
+                  ctx.translate(cw * 0.5, cw * 0.5);
+                  ctx.rotate(self.rotate * 0.0174532925199432957);
+                  ctx.translate(-cw * 0.5, -cw * 0.5);
+                  ctx.drawImage(video, sx, sy, sw, sh,
+                    0, 0, cw, ch);
+                  ctx.restore();
+                }
                 if (typeof callback == 'function') {
                   callback(canvas, video);
                 }
@@ -225,24 +258,29 @@ let Camera = (function () {
 
     drawRotated(canvas, image, degrees) {
       try {
-        degrees = this.rotate ? 90 : 0;
-        var context = canvas.getContext('2d');
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.save();
-        context.translate(canvas.width / 2, canvas.height / 2);
-        context.rotate(degrees * Math.PI / 180);
-        var w = (canvas.width - image.width) / 2;
-        var h = (canvas.height - image.height) / 2;
+        var ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        var vw = image.width;
+        var vh = image.height;
+        var cw = canvas.width;
+        var ch = canvas.height;
+        var sw = cw * vh / ch;
+        var sh = ch * vh / ch;
+        var sx = (vw - sw) / 2;
+        var sy = (vh - sh) / 2;
         if (degrees != 0) {
-          context.drawImage(image,
-            (-image.height / 2) - h, (-image.width / 2) - w,
-            canvas.height, canvas.width);
+          ctx.save();
+          ctx.translate(image.width * 0.5, image.width * 0.5);
+          ctx.rotate(degrees * 0.0174532925199432957);
+          ctx.translate(-image.width * 0.5, -image.width * 0.5);
+          ctx.drawImage(image, 0, 0);
+          ctx.restore();
         } else {
-          context.drawImage(image,
-            (-image.width / 2) - w, (-image.height / 2) - h,
-            canvas.width, canvas.height);
+          ctx.drawImage(image, sx * vw / vh, sy, sw, sh,
+            0, 0, cw, ch);
         }
-        context.restore();
+        ctx.restore();
       } catch (e) {
         console.log("drawImage err:", e);
       }
