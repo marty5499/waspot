@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <script src="dist/min/waspot.js"></script>
+  <script src="js/opencv.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+</head>
+
+<body>
+  <h1>Hotspot section detect</h1>
+  <canvas id='c1' width=640 height=480></canvas>
+  <canvas id='c2' width=300 height=300 debugger></canvas>
+  <script>
+  var hot = new HotBlock('c1' /*, 'c2'*/ );
+  hot.addBlock({
+    "id": "default",
+    "area": [300, 200, 550, 450],
+    "history": 3000,
+    "varThreshold": 1000,
+    "learningRate": 0.0001,
+    "detectShadows": false,
+    "objMinSize": 30,
+    "filter": ["e5", "g7", "d3"]
+  }, {
+    inside: function (pos, c) {
+      var ctx = c.getContext("2d");
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, pos.radius, 0, 2 * Math.PI);
+      ctx.stroke();
+      this.setStroke(3, "#00FF00");
+    },
+    outside: function (pos) {
+      this.setStroke(3, "#FF0000");
+    }
+  });
+  hot.startAfter(1000);
+
+  var cam = new Camera("http://192.168.0.124:81/stream");
+  var cam = new Camera("http://cam99.local:81/stream");
+  cam.onCanvas('c1', function (canvas) {
+    hot.scan();
+  });
+  </script>
+</body>
+
+</html>
