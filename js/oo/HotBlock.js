@@ -13,6 +13,10 @@ class HotBlock {
       } else {
         this.canvas2 = canvasEleOrId2;
       }
+      //var rect = this.canvas.getBoundingClientRect();
+      //this.canvas2.style.position = 'absolute';
+      //this.canvas2.style.top = rect.top + 'px';
+      //this.canvas2.style.left = rect.left + 'px';
     } else {
       this.canvas2 = this.canvas;
     }

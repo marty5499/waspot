@@ -80,7 +80,7 @@ class Hotspot {
     this.scanWidth = Math.max.apply(null, [x1, x2, x3, x4]) - this.scanX;
     this.scanHeight = Math.max.apply(null, [y1, y2, y3, y4]) - this.scanY;
 
-    this.detectCB = this.in = this.out = function (pos) {};
+    this.detectCB = this.in = this.out = function (pos,canvas) {};
     this.startDetect = false;
     this.firstDetect = true;
     this.pause = false;
@@ -203,6 +203,9 @@ class Hotspot {
   }
 
   scan() {
+    if (!this.startDetect) {
+      return;
+    }
     if (this.pause) {
       return;
     }
@@ -255,7 +258,7 @@ class Hotspot {
     }
 
     if (posList.length == 0 && this.lastPos != false) {
-      this.out(this.lastPos);
+      this.out(this.lastPos,this.targetCanvas);
       this.lastPos = false;
       src.delete()
       dstx.delete();
@@ -281,7 +284,7 @@ class Hotspot {
           var minY = Math.abs(pos.y - this.lastPos.y);
           if (minX > this.posMinStep || minY > this.posMinStep) {
             this.lastPos = pos;
-            this.in(pos);
+            this.in(pos,this.sourceCanvas);
           }
         }
       }

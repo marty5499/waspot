@@ -16,14 +16,21 @@
 
 <body>
   <h1>Hotspot section detect</h1>
-  <br>
-  <canvas id='c1' width=320 height=240></canvas>
-  <canvas id='c2' width=320 height=240 debugger></canvas>
+  <canvas id='c1' width=640 height=480></canvas>
+  <canvas id='c2' width=300 height=300 debugger></canvas>
   <script>
   var hot = new HotBlock('c1' /*, 'c2'*/ );
-  hot.setBlock([10, 10, 110, 110], {
-    inside: function (pos) {
-      var c = document.getElementById("c1");
+  hot.addBlock({
+    "id": "default",
+    "area": [10, 10, 300, 300],
+    "history": 300,
+    "varThreshold": 150,
+    "learningRate": 0.01,
+    "detectShadows": false,
+    "objMinSize": 30,
+    "filter": ["e3", "g1", "d3"]
+  }, {
+    inside: function (pos, c) {
       var ctx = c.getContext("2d");
       ctx.beginPath();
       ctx.arc(pos.x, pos.y, pos.radius, 0, 2 * Math.PI);
@@ -36,7 +43,7 @@
   });
   hot.startAfter(500);
 
-  var cam = new Camera(0);
+  var cam = new Camera("http://cam99.local:81/stream");
   cam.onCanvas('c1', function (canvas) {
     hot.scan();
   });
