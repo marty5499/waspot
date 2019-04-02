@@ -1,4 +1,4 @@
-let Camera = (function () {
+var Camera = (function () {
   const webCam = 0;
   const wsCam = 1;
   const jpgCam = 2;
@@ -14,7 +14,12 @@ let Camera = (function () {
       }
       this.setCamType(camType);
       this.setFlip(false);
+      this.autoScale = false;
       this.setRotate(0);
+    }
+
+    setAutoScale(autoScale) {
+      this.autoScale = autoScale;
     }
 
     setCamType(camType) {
@@ -136,19 +141,19 @@ let Camera = (function () {
       var camSnapshotDelay = 0.5;
       var param = this.URL.indexOf("?");
       if (param > 0) {
-        camSnapshotDelay = parseFloat(this.URL.substring(param + 1)) * 1000;
+        camSnapshotDelay = parseFloat(this.URL.substring(param + 1));
         this.URL = this.URL.substring(0, param);
-      } else {
-        camSnapshotDelay = camSnapshotDelay * 1000;
       }
       image.src = this.URL;
       image.onload = function () {
-        setTimeout(function () {
-          if (typeof callback == 'function') {
-            callback(image);
-          }
-          image.src = self.URL + "?" + Math.random();
-        }, camSnapshotDelay);
+        if (typeof callback == 'function') {
+          callback(image);
+        }
+        (async function () {
+          await delay(camSnapshotDelay);
+          image.src = self.URL + "?" + parseInt(Math.random() * 1000);
+        })();
+        //image.src = self.URL + "#"+Math.random()+"?" + (camSnapshotDelay / 1000);
       }
     }
 
@@ -233,7 +238,7 @@ let Camera = (function () {
       var iRatio = parseInt(100 * iw / ih) / 100;
       var cRatio = parseInt(100 * cw / ch) / 100;
       this.ctx.save();
-      if (cw != ch && (cRatio != iRatio)) {
+      if (cw != ch && (cRatio != iRatio) && !this.autoScale) {
         ctx.translate(cw / 2, ch / 2);
         ctx.rotate(degrees * 0.0174532925199432957);
         ctx.translate(-ch / 2, -cw / 2);
@@ -284,6 +289,21 @@ let Camera = (function () {
       } else {
         callback();
       }
+    }
+
+    upload(url) {
+      this.canvas.toBlob(
+        function (blob) {
+          var fd = new FormData();
+          fd.append('file', blob, "img.jpg");
+          fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            body: fd
+          }).then(res => {
+            console.log("upload res:", res.status);
+          });
+        }, 'image/jpeg');
     }
   }
   return Camera;
