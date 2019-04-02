@@ -144,16 +144,15 @@ var Camera = (function () {
         camSnapshotDelay = parseFloat(this.URL.substring(param + 1));
         this.URL = this.URL.substring(0, param);
       }
+      camSnapshotDelay = camSnapshotDelay * 1000;
       image.src = this.URL;
       image.onload = function () {
-        if (typeof callback == 'function') {
-          callback(image);
-        }
-        (async function () {
-          await delay(camSnapshotDelay);
-          image.src = self.URL + "?" + parseInt(Math.random() * 1000);
-        })();
-        //image.src = self.URL + "#"+Math.random()+"?" + (camSnapshotDelay / 1000);
+        setTimeout(function () {
+          if (typeof callback == 'function') {
+            callback(image);
+          }
+          image.src = self.URL + "?" + Math.random();
+        }, camSnapshotDelay);
       }
     }
 
