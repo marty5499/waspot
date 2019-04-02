@@ -25,13 +25,13 @@
     //門口 "area": [280, 150, 420, 290]
     hot.addBlock({
       "id": "default",
-      "area": [250, 150, 320, 200],
+      "area": [280, 150, 420, 290],
       "history": 2000,
       "varThreshold": 200,
       "learningRate": 0.005,
       "detectShadows": false,
-      "objMinSize": 10,
-      "filter": ["e5", "d3"]
+      "objMinSize": 70,
+      "filter": ["e5", "g3","d3"]
     }, {
       inside: function (pos, c) {
         var ctx = c.getContext("2d");
@@ -53,12 +53,11 @@
     });
   });
 
-  hot.startAfter(1000);
-  //  var cam = new Camera("http://webeye.webduino.io/camera/wrPlZr60d/live");
+  hot.startAfter(3000);
   //var cam = new Camera("http://cam99.local:81/stream");
   //var cam = new Camera("http://webduino.tw/view/cam22");
-  var cam = new Camera('http://cam22.local/jpg?0.1');
-  //var cam = new Camera('http://webeye.webduino.io/camera/wrPlZr60d/live');
+  //var cam = new Camera('http://cam22.local/jpg?0.1');
+  var cam = new Camera('http://webeye.webduino.io/camera/wrPlZr60d/live');
   cam.onCanvas('c1', function (canvas) {
     hot.scan();
   });

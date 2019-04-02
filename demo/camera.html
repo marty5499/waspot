@@ -5,11 +5,19 @@
 </head>
 
 <body>
-  <canvas id='c1' width=224 height=224></canvas>
+  <canvas id='c1' width=240 height=240 style='border:3px #cccccc solid;'></canvas>
+  <canvas id='c2' width=320 height=240 style='border:3px #cccccc solid;'></canvas>
   <script>
   // WebCam
-  new Camera(0).setRotate(0).onCanvas('c');
-  //new Camera("http://cam22.local:81/stream").setRotate(0).onCanvas('c2');
+  new Camera(0).setRotate(0).onCanvas('c1');
+  var cam = new Camera("http://cam22.local/jpg").setRotate(0).onCanvas('c2');
+  /*
+  var r = 0;
+  setInterval(function(){
+    cam.setRotate(r++);
+  },30);
+  //*/
+  
   // WebRTC
   //new Camera("ws://10.0.1.112:8889/rws/ws").onCanvas('c');
 
