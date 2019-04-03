@@ -145,7 +145,12 @@ var Camera = (function () {
         this.URL = this.URL.substring(0, param);
       }
       camSnapshotDelay = camSnapshotDelay * 1000;
-      image.src = this.URL;
+      image.src = self.URL;
+      image.addEventListener('error', function () {
+        console.log('loading img failed.'); // you could try to load that resource again.
+        image.src = self.URL + "?" + Math.random();
+      });
+
       image.onload = function () {
         setTimeout(function () {
           if (typeof callback == 'function') {
