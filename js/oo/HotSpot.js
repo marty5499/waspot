@@ -251,11 +251,7 @@ class Hotspot {
       return;
     }
 
-    var posList = this.imgFilter.enclosingCircle(dstx, 5);
-
-    if (posList.length > 1) {
-      //console.log("noise:", posList);
-    }
+    var posList = this.imgFilter.enclosingCircleMaxOne(dstxs);
 
     if (posList.length == 0 && this.lastPos != false) {
       this.out(this.lastPos,this.targetCanvas);

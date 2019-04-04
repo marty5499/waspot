@@ -40,6 +40,34 @@ class ImageFilter {
     return dst;
   }
 
+
+  enclosingCircleMaxOne(src, size) {
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    //this.cv.findContours(src, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_TC89_L1);
+    this.cv.findContours(src, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_TC89_KCOS);
+    this.cv.cvtColor(src, src, cv.COLOR_GRAY2RGBA, 0);
+    var count = 0;
+    var maxCircle = null;
+    for (var i = 0; i < contours.size(); i++) {
+      let cnt = contours.get(i);
+      let circle = cv.minEnclosingCircle(cnt);
+      if (maxCircle == null) {
+        maxCircle = circle;
+      }
+      if (circle.radius >= size &&
+        circle.radius > maxCircle.radius) {
+        maxCircle = circle;
+        count++;
+      }
+    }
+    return count == 0 ? [] : [{
+      x: maxCircle.center.x,
+      y: maxCircle.center.y,
+      radius: maxCircle.radius
+    }];
+  }
+
   enclosingCircle(src, size) {
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
