@@ -56,7 +56,7 @@ class ImageFilter {
         maxCircle = circle;
       }
       if (circle.radius >= size &&
-        circle.radius > maxCircle.radius) {
+        circle.radius >= maxCircle.radius) {
         maxCircle = circle;
         count++;
       }
@@ -108,3 +108,5 @@ class ImageFilter {
     return size;
   }
 }
+
+cv.imgFilter = new ImageFilter(cv);
