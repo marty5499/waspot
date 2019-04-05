@@ -1,0 +1,38 @@
+<html>
+
+<head>
+    <script src="../js/oo/camera.js"></script>
+    <script src="../js/oo/actor.js"></script>
+    <script src="../js/oo/Hotspot.js"></script>
+    <script src="../js/oo/HotBlock.js"></script>
+    <script src="../js/opencv.js"></script>
+    <script src="../js/oo/ImageFilter.js"></script>
+</head>
+
+<body>
+    <br>
+    <br>
+    <canvas id='c1' width=320 height=240 style='border:3px #cccccc solid;'></canvas>
+    <canvas id='c2' width=320 height=240 style='border:3px #cccccc solid;'></canvas>
+    <script>
+        var obj;
+        obj = new Actor(cv, {
+            'stage': 'c1',
+            'img': '../res/coin.gif',
+            'snd': '../res/coin.mp3',
+            'pos': [50, 50, 24, 24]
+        });
+        obj.start();
+        // WebCam
+        new Camera(0).setRotate(0).onCanvas('c1', function (c) {
+            obj.showTime();
+        });
+
+        setInterval(function () {
+            obj.show();
+            obj.moveTo(Math.random()*200,Math.random()*200);
+        }, 3000);
+    </script>
+</body>
+
+</html>
