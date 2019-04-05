@@ -74,12 +74,10 @@ class Hotspot {
     this.y2 = y2;
     this.y3 = y3;
     this.y4 = y4;
-
     this.scanX = Math.min.apply(null, [x1, x2, x3, x4]);
     this.scanY = Math.min.apply(null, [y1, y2, y3, y4]);
     this.scanWidth = Math.max.apply(null, [x1, x2, x3, x4]) - this.scanX;
     this.scanHeight = Math.max.apply(null, [y1, y2, y3, y4]) - this.scanY;
-
     this.detectCB = this.in = this.out = function (pos, canvas) { };
     this.startDetect = false;
     this.firstDetect = true;
@@ -142,9 +140,6 @@ class Hotspot {
   stop() {
     this.startDetect = false;
     this.canvas.remove();
-    //var x = document.body.removeChild(this.canvas);
-    //x.remove();
-    //console.log("remove ok:",x);
   }
 
   setShowArea(b) {
@@ -153,6 +148,20 @@ class Hotspot {
 
   setTrackingStep(step) {
     this.posMinStep = step;
+  }
+
+  moveTo(x, y) {
+    this.scanX = x;
+    this.scanY = y;
+    this.x1 = this.scanX;
+    this.y1 = this.scanY;
+    this.x2 = this.scanX + this.scanWidth;
+    this.y2 = this.scanY;
+    this.x3 = this.scanX + this.scanWidth;
+    this.y3 = this.scanY + this.scanHeight;
+    this.x4 = this.scanX;
+    this.y4 = this.scanY + this.scanHeight;
+    this.reset();
   }
 
   setCvProcess(imgFilter) {
@@ -260,7 +269,6 @@ class Hotspot {
       dstx.delete();
       return;
     }
-
     for (var i = 0; i < posList.length; i++) {
       //偵測區域裡面的座標 x:0 ,y:0
       var pos = posList[i];
