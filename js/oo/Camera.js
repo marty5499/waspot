@@ -22,6 +22,10 @@ var Camera = (function () {
       this.autoScale = autoScale;
     }
 
+    getCanvas() {
+      return this.canvas;
+    }
+
     setCamType(camType) {
       this.cameraList = [];
       if (isNaN(parseInt(camType))) {
@@ -40,6 +44,10 @@ var Camera = (function () {
         this.camType = webCam;
         this.webCamSelect = camType;
       }
+    }
+
+    setCanvas(canvas){
+      this.canvas = canvas;
     }
 
     setRotate(degrees) {
@@ -103,15 +111,15 @@ var Camera = (function () {
           };
           var self = this;
           navigator.mediaDevices.getUserMedia(constraints).
-          then(function (stream) {
-            if (self.video) {
-              self.video.srcObject = stream;
-            }
-          }).catch(function (error) {
-            console.log('Error: ', error);
-          });
+            then(function (stream) {
+              if (self.video) {
+                self.video.srcObject = stream;
+              }
+            }).catch(function (error) {
+              console.log('Error: ', error);
+            });
           break;
-          /* WebRTC */
+        /* WebRTC */
         case wsCam:
           console.log("WebRTC:", this.camType);
           ConnectWebSocket(this.URL);

@@ -61,6 +61,8 @@ class ImageFilter {
         count++;
       }
     }
+    contours.delete();
+    hierarchy.delete();
     return count == 0 ? [] : [{
       x: maxCircle.center.x,
       y: maxCircle.center.y,
@@ -91,6 +93,8 @@ class ImageFilter {
     if (count > 0) {
       //console.log("count:", count, contours.size());
     }
+    contours.delete();
+    hierarchy.delete();
     return objList;
   }
 

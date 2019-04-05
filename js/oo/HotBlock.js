@@ -1,11 +1,18 @@
 class HotBlock {
 
-  constructor(canvasEleOrId, canvasEleOrId2) {
-    if (typeof canvasEleOrId == 'string') {
-      this.canvas = document.getElementById(canvasEleOrId);
-    } else {
-      this.canvas = canvasEleOrId;
+  constructor(canvasEleOrIdOrCameraObj, canvasEleOrId2) {
+    this.alreadyStart = false;
+    if (typeof canvasEleOrIdOrCameraObj == 'object'
+      && typeof canvasEleOrIdOrCameraObj.getCanvas != "undefined") {
+      this.camera = canvasEleOrIdOrCameraObj;
+      this.canvas = this.camera.getCanvas();
     }
+    else if (typeof canvasEleOrIdOrCameraObj == 'string') {
+      this.canvas = document.getElementById(canvasEleOrIdOrCameraObj);
+    } else {
+      this.canvas = canvasEleOrIdOrCameraObj;
+    }
+
     if (arguments.length == 2) {
       this.debug = true;
       if (typeof canvasEleOrId2 == 'string') {
@@ -13,10 +20,6 @@ class HotBlock {
       } else {
         this.canvas2 = canvasEleOrId2;
       }
-      //var rect = this.canvas.getBoundingClientRect();
-      //this.canvas2.style.position = 'absolute';
-      //this.canvas2.style.top = rect.top + 'px';
-      //this.canvas2.style.left = rect.left + 'px';
     } else {
       this.canvas2 = this.canvas;
     }
@@ -29,6 +32,10 @@ class HotBlock {
     if (typeof tracking == "undefined") return;
     tracking.stop();
     delete this.trackingList[blockId];
+  }
+
+  getBlock(id){
+    return this.trackingList[blockId];
   }
 
   setBlock(area, callback) {
@@ -69,6 +76,7 @@ class HotBlock {
       tracking.outside(callback['outside']);
     }
     this.trackingList[tracking.blockId] = tracking;
+    return tracking;
   }
 
   scan() {
@@ -78,6 +86,16 @@ class HotBlock {
     }
   }
 
+  start(delay) {
+    var self = this;
+    if (this.alreadyStart) return;
+    this.alreadyStart = true;
+    this.camera.onCanvas(self.canvas, function (c) {
+      self.scan();
+    });
+    this.startAfter(delay);
+  }
+
   startAfter(delay) {
     var self = this;
     setTimeout(function () {
@@ -85,7 +103,6 @@ class HotBlock {
       for (var i in self.trackingList) {
         var tracking = self.trackingList[i];
         tracking.start();
-        tracking.out();
       }
     }, delay);
   }
