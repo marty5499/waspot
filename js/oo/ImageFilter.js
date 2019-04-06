@@ -60,6 +60,7 @@ class ImageFilter {
         maxCircle = circle;
         count++;
       }
+      cnt.delete();
     }
     contours.delete();
     hierarchy.delete();
@@ -89,6 +90,7 @@ class ImageFilter {
           radius: circle.radius
         });
       }
+      cnt.delete();
     }
     if (count > 0) {
       //console.log("count:", count, contours.size());

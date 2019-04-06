@@ -261,6 +261,8 @@ class Hotspot {
       return;
     }
 
+
+
     var posList = this.imgFilter.enclosingCircleMaxOne(dstx, this.objMinSize);
     if (posList.length == 0 && this.lastPos != false) {
       this.out(this.lastPos, this.targetCanvas);
