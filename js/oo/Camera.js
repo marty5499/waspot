@@ -16,6 +16,10 @@ var Camera = (function () {
       this.setFlip(false);
       this.autoScale = false;
       this.setRotate(0);
+      var flipStyle = document.createElement('style')
+      this.id = "canvas_" + ("" + Math.random()).substring(2);
+      flipStyle.innerHTML = "." + this.id + " {-moz-transform: scaleX(-1);-o-transform: scaleX(-1);-webkit-transform: scaleX(-1);transform: scaleX(-1);filter: FlipH;-ms-filter: 'FlipH';}";
+      document.body.appendChild(flipStyle);
     }
 
     setAutoScale(autoScale) {
@@ -115,15 +119,15 @@ var Camera = (function () {
           };
           var self = this;
           navigator.mediaDevices.getUserMedia(constraints).
-          then(function (stream) {
-            if (self.video) {
-              self.video.srcObject = stream;
-            }
-          }).catch(function (error) {
-            console.log('Error: ', error);
-          });
+            then(function (stream) {
+              if (self.video) {
+                self.video.srcObject = stream;
+              }
+            }).catch(function (error) {
+              console.log('Error: ', error);
+            });
           break;
-          /* WebRTC */
+        /* WebRTC */
         case wsCam:
           console.log("WebRTC:", this.camType);
           ConnectWebSocket(this.URL);
@@ -181,8 +185,12 @@ var Camera = (function () {
       }
       var self = this;
       var canvas = self.getEle(eleOrId);
+      if (this.flip) {
+        canvas.classList.add(this.id);
+      }
       self.canvas = canvas;
       self.ctx = canvas.getContext("2d");
+      //self.ctx.scale(-1, 1);
 
       this.buttonTrigger(canvas, function () {
         self.startCam();

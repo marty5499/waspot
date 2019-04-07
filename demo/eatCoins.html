@@ -14,9 +14,11 @@
     <br>
     <canvas id='c1' width=320 height=240 style='border:3px #cccccc solid;'></canvas>
     <script>
+
         var actor;
         // WebCam
         var cam = new Camera(0).setRotate(0).setCanvas('c1');
+        //cam.setFlip(true);
         // create Actor
         actor = new Actor(cv, {
             'stage': cam,
@@ -24,9 +26,9 @@
             'snd': '../res/coin.mp3',
             'pos': [50, 50, 24, 24]
         });
-        actor.moveTo(100,100);
+        actor.moveTo(100, 100);
         actor.start();
-        actor.onTouch(function(pos){
+        actor.onTouch(function (pos) {
             actor.play();
             actor.hide();
         });
