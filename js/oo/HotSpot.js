@@ -56,7 +56,6 @@ class Hotspot {
     //設定要顯示到哪個畫布上 (sourceCanvas (同來源影像) , targetCanvas (空白，適合投影))
     this.drawCanvas = targetCanvas; //顯示的畫布
     this.drawCtx = this.drawCanvas.getContext('2d');
-
     document.body.appendChild(this.canvas);
     this.ctx.beginPath();
     this.ctx.moveTo(x1, y1);
@@ -65,7 +64,6 @@ class Hotspot {
     this.ctx.lineTo(x4, y4);
     this.ctx.lineTo(x1, y1);
     this.ctx.clip();
-    this.setStroke(0, "#ff0000");
     this.x1 = x1;
     this.x2 = x2;
     this.x3 = x3;
@@ -102,6 +100,8 @@ class Hotspot {
       this.objMinSize = this.jsonInfo['objMinSize'];
       this.filter = this.jsonInfo['filter'];
       this.learningRate = this.jsonInfo['learningRate'];
+      this.lineWidth = this.jsonInfo['lineWidth'];
+      this.strokeStyle = this.jsonInfo['strokeStyle'];
       if (typeof history == 'undefined') {
         history = 500;
       }
@@ -110,6 +110,12 @@ class Hotspot {
       }
       if (typeof detectShadows == 'undefined') {
         detectShadows = false;
+      }
+      if (typeof this.lineWidth == 'undefined') {
+        this.lineWidth = 0;
+      }
+      if (typeof this.strokeStyle == 'undefined') {
+        this.strokeStyle = '#ff0000';
       }
       if (typeof this.objMinSize == 'undefined') {
         this.objMinSize = 5;
