@@ -68,6 +68,10 @@ var Camera = (function () {
       return this;
     }
 
+    getFlip() {
+      return this.flip;
+    }
+
     list(callback) {
       var self = this;
       this.enumerateDevices(function () {
@@ -119,15 +123,15 @@ var Camera = (function () {
           };
           var self = this;
           navigator.mediaDevices.getUserMedia(constraints).
-            then(function (stream) {
-              if (self.video) {
-                self.video.srcObject = stream;
-              }
-            }).catch(function (error) {
-              console.log('Error: ', error);
-            });
+          then(function (stream) {
+            if (self.video) {
+              self.video.srcObject = stream;
+            }
+          }).catch(function (error) {
+            console.log('Error: ', error);
+          });
           break;
-        /* WebRTC */
+          /* WebRTC */
         case wsCam:
           console.log("WebRTC:", this.camType);
           ConnectWebSocket(this.URL);
