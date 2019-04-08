@@ -2,12 +2,11 @@ class HotBlock {
 
   constructor(canvasEleOrIdOrCameraObj, canvasEleOrId2) {
     this.alreadyStart = false;
-    if (typeof canvasEleOrIdOrCameraObj == 'object'
-      && typeof canvasEleOrIdOrCameraObj.getCanvas != "undefined") {
+    if (typeof canvasEleOrIdOrCameraObj == 'object' &&
+      typeof canvasEleOrIdOrCameraObj.getCanvas != "undefined") {
       this.camera = canvasEleOrIdOrCameraObj;
       this.canvas = this.camera.getCanvas();
-    }
-    else if (typeof canvasEleOrIdOrCameraObj == 'string') {
+    } else if (typeof canvasEleOrIdOrCameraObj == 'string') {
       this.canvas = document.getElementById(canvasEleOrIdOrCameraObj);
     } else {
       this.canvas = canvasEleOrIdOrCameraObj;
@@ -34,7 +33,7 @@ class HotBlock {
     delete this.trackingList[blockId];
   }
 
-  getBlock(id){
+  getBlock(id) {
     return this.trackingList[blockId];
   }
 
@@ -51,7 +50,6 @@ class HotBlock {
       "filter": ["e1", "d1"]
     }, callback);
   }
-
 
   addBlock(jsonInfo, callback) {
     this.delBlock(jsonInfo['id']);
