@@ -100,8 +100,6 @@ class Hotspot {
       this.objMinSize = this.jsonInfo['objMinSize'];
       this.filter = this.jsonInfo['filter'];
       this.learningRate = this.jsonInfo['learningRate'];
-      this.lineWidth = this.jsonInfo['lineWidth'];
-      this.strokeStyle = this.jsonInfo['strokeStyle'];
       if (typeof history == 'undefined') {
         history = 500;
       }
@@ -111,11 +109,11 @@ class Hotspot {
       if (typeof detectShadows == 'undefined') {
         detectShadows = false;
       }
-      if (typeof this.lineWidth == 'undefined') {
-        this.lineWidth = 0;
+      if (typeof this.jsonInfo['lineWidth'] != 'undefined') {
+        this.lineWidth = this.jsonInfo['lineWidth'];
       }
-      if (typeof this.strokeStyle == 'undefined') {
-        this.strokeStyle = '#ff0000';
+      if (typeof this.jsonInfo['strokeStyle'] != 'undefined') {
+        this.strokeStyle = this.jsonInfo['strokeStyle'];
       }
       if (typeof this.objMinSize == 'undefined') {
         this.objMinSize = 5;
@@ -146,6 +144,10 @@ class Hotspot {
   stop() {
     this.startDetect = false;
     this.canvas.remove();
+  }
+
+  setFlip(flip) {
+    this.isFlip = flip;
   }
 
   setShowArea(b) {
@@ -204,8 +206,12 @@ class Hotspot {
   getImageData() {
     this.drawTrackingArea();
     this.ctx.drawImage(this.drawCanvas, 0, 0);
+    var x = this.scanX;
+    if (this.isFlip) {
+      x = this.sourceCanvas.width - x;
+    }
     this.background = this.sourceCtx.getImageData(
-      this.scanX, this.scanY, this.scanWidth, this.scanHeight);
+      x, this.scanY, this.scanWidth, this.scanHeight);
     return this.background;
   }
 
@@ -243,7 +249,9 @@ class Hotspot {
           dstx = this.imgFilter.erosion(dstx, value);
           break;
         case 'g':
-          dstx = this.imgFilter.gaussianBlur(dstx, value);
+          if (value % 2 == 1) {
+            dstx = this.imgFilter.gaussianBlur(dstx, value);
+          }
           break;
         case 'd':
           dstx = this.imgFilter.dilation(dstx, value);
@@ -266,8 +274,6 @@ class Hotspot {
       dstx.delete();
       return;
     }
-
-
 
     var posList = this.imgFilter.enclosingCircleMaxOne(dstx, this.objMinSize);
     if (posList.length == 0 && this.lastPos != false) {
