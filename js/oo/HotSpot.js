@@ -208,7 +208,7 @@ class Hotspot {
     this.ctx.drawImage(this.drawCanvas, 0, 0);
     var x = this.scanX;
     if (this.isFlip) {
-      x = this.sourceCanvas.width - x;
+      x = this.sourceCanvas.width - x - this.scanWidth;
     }
     this.background = this.sourceCtx.getImageData(
       x, this.scanY, this.scanWidth, this.scanHeight);
@@ -410,5 +410,4 @@ class Hotspot {
     this._inside = (count % 2 == 0) ? false : true;
     return this._inside;
   }
-
 }
