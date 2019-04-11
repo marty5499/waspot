@@ -12,6 +12,9 @@ var Camera = (function () {
       if (arguments.length == 0) {
         camType = 0;
       }
+      this.cnt = 0;
+      this.onCanvasCallbackList = [];
+      this.onReadyCallbackList = [];
       this.setCamType(camType);
       this.setFlip(false);
       this.autoScale = false;
@@ -20,6 +23,10 @@ var Camera = (function () {
       this.id = "canvas_" + ("" + Math.random()).substring(2);
       flipStyle.innerHTML = "." + this.id + " {-moz-transform: scaleX(-1);-o-transform: scaleX(-1);-webkit-transform: scaleX(-1);transform: scaleX(-1);filter: FlipH;-ms-filter: 'FlipH';}";
       document.body.appendChild(flipStyle);
+    }
+
+    onReady(cb) {
+      this.onReadyCallbackList.push(cb);
     }
 
     setAutoScale(autoScale) {
@@ -123,15 +130,15 @@ var Camera = (function () {
           };
           var self = this;
           navigator.mediaDevices.getUserMedia(constraints).
-          then(function (stream) {
-            if (self.video) {
-              self.video.srcObject = stream;
-            }
-          }).catch(function (error) {
-            console.log('Error: ', error);
-          });
+            then(function (stream) {
+              if (self.video) {
+                self.video.srcObject = stream;
+              }
+            }).catch(function (error) {
+              console.log('Error: ', error);
+            });
           break;
-          /* WebRTC */
+        /* WebRTC */
         case wsCam:
           console.log("WebRTC:", this.camType);
           ConnectWebSocket(this.URL);
@@ -182,19 +189,19 @@ var Camera = (function () {
     }
 
     onCanvas(eleOrId, callback) {
+      var self = this;
       //use setCanvas()
       if (arguments.length == 1) {
         callback = eleOrId;
         eleOrId = this.getCanvas();
       }
-      var self = this;
+      this.onCanvasCallbackList.push(callback);
       var canvas = self.getEle(eleOrId);
       if (this.flip) {
         canvas.classList.add(this.id);
       }
       self.canvas = canvas;
       self.ctx = canvas.getContext("2d");
-      //self.ctx.scale(-1, 1);
 
       this.buttonTrigger(canvas, function () {
         self.startCam();
@@ -205,12 +212,17 @@ var Camera = (function () {
             window.remoteVideo = self.video = video;
             video.onloadeddata = function () {
               var loop = function () {
+                if (self.cnt++ == 0) {
+                  for (var i = 0; i < self.onReadyCallbackList.length; i++) {
+                    self.onReadyCallbackList[i]();
+                  }
+                }
                 var ctx = canvas.getContext('2d');
-                var vw = video.videoWidth;
-                var vh = video.videoHeight;
                 self.rotateImg(video, canvas, self.rotate, true);
-                if (typeof callback == 'function') {
-                  callback(self.canvas, video);
+                if (self.onCanvasCallbackList.length > 0) {
+                  for (var i = 0; i < self.onCanvasCallbackList.length; i++) {
+                    self.onCanvasCallbackList[i](self.canvas, video);
+                  }
                 }
                 requestAnimationFrame(loop);
               }
@@ -221,8 +233,10 @@ var Camera = (function () {
             var ele = document.createElement('img');
             self.onImage(ele, function (img) {
               self.rotateImg(ele, canvas, self.rotate, false);
-              if (typeof callback == 'function') {
-                callback(canvas, ele);
+              if (self.onCanvasCallbackList.length > 0) {
+                for (var i = 0; i < self.onCanvasCallbackList.length; i++) {
+                  self.onCanvasCallbackList[i](self.canvas, video);
+                }
               }
             });
             break;
@@ -235,8 +249,10 @@ var Camera = (function () {
             var ctx = canvas.getContext('2d');
             var loop = function () {
               self.rotateImg(ele, canvas, self.rotate, false);
-              if (typeof callback == 'function') {
-                callback(canvas, ele);
+              if (self.onCanvasCallbackList.length > 0) {
+                for (var i = 0; i < self.onCanvasCallbackList.length; i++) {
+                  self.onCanvasCallbackList[i](self.canvas, video);
+                }
               }
               requestAnimationFrame(loop);
             }
