@@ -3,11 +3,13 @@ var Camera = (function () {
   const wsCam = 1;
   const jpgCam = 2;
   const imgStreamCam = 3;
+  const videoStreamCam = 4;
 
   class Camera {
     // webCam: 0,1,2
     // jpgCam: http://192.168.0.11/jpg
     // wsCam:  ws://192.168.43.110:8889/rws/ws
+    // videoCam: http://127.0.0.1:9966/walkman.mp4
     constructor(camType) {
       if (arguments.length == 0) {
         camType = 0;
@@ -43,8 +45,10 @@ var Camera = (function () {
         this.URL = camType;
         if (camType.indexOf("ws://") == 0) {
           this.camType = wsCam;
-        } else if (camType.indexOf("http://") == 0) {
-          if (camType.indexOf(":81/stream") > 0) {
+        } else if (camType.indexOf("http://") == 0 || camType.indexOf(".mp4") > 0) {
+          if (camType.indexOf(".mp4") > 0) {
+            this.camType = videoStreamCam;
+          } else if (camType.indexOf(":81/stream") > 0) {
             this.camType = imgStreamCam;
           } else {
             this.camType = jpgCam;
@@ -153,6 +157,11 @@ var Camera = (function () {
           console.log("imgStreamCam:", this.camType);
           console.log("URL:", this.URL);
           break;
+        case videoStreamCam:
+          // http://192.168.43.201:9966/walkman.mp4
+          console.log("videoStreamCam:", this.camType);
+          console.log("URL:", this.URL);
+          break;
       }
     }
 
@@ -180,7 +189,7 @@ var Camera = (function () {
 
       image.onload = function () {
         setTimeout(function () {
-          if (typeof callback == 'function') {
+          if (self.onCanvasCallbackList.length > 0) {
             callback(image);
           }
           image.src = self.URL + "?" + Math.random();
@@ -190,10 +199,15 @@ var Camera = (function () {
 
     onCanvas(eleOrId, callback) {
       var self = this;
-      //use setCanvas()
-      if (arguments.length == 1) {
+      //check if it's callback function
+      if (arguments.length == 1
+        && typeof eleOrId == 'object'
+        && typeof eleOrId['tagName'] == 'undefined') {
         callback = eleOrId;
         eleOrId = this.getCanvas();
+      }
+      if (typeof callback == 'undefined') {
+        callback = function () { };
       }
       this.onCanvasCallbackList.push(callback);
       var canvas = self.getEle(eleOrId);
@@ -212,7 +226,7 @@ var Camera = (function () {
             window.remoteVideo = self.video = video;
             video.onloadeddata = function () {
               var loop = function () {
-                if (self.cnt++ == 0) {
+                if (self.cnt++ == 30 /* skip 30 frame*/) {
                   for (var i = 0; i < self.onReadyCallbackList.length; i++) {
                     self.onReadyCallbackList[i]();
                   }
@@ -233,10 +247,8 @@ var Camera = (function () {
             var ele = document.createElement('img');
             self.onImage(ele, function (img) {
               self.rotateImg(ele, canvas, self.rotate, false);
-              if (self.onCanvasCallbackList.length > 0) {
-                for (var i = 0; i < self.onCanvasCallbackList.length; i++) {
-                  self.onCanvasCallbackList[i](self.canvas, video);
-                }
+              for (var i = 0; i < self.onCanvasCallbackList.length; i++) {
+                self.onCanvasCallbackList[i](self.canvas, video);
               }
             });
             break;
@@ -257,6 +269,35 @@ var Camera = (function () {
               requestAnimationFrame(loop);
             }
             requestAnimationFrame(loop);
+            break;
+          case videoStreamCam:
+            var video = self.createVideo();
+            console.log("start videoStream Cam");
+            window.remoteVideo = self.video = video;
+            var sourceMP4 = document.createElement("source");
+            video.appendChild(sourceMP4);
+            sourceMP4.type = "video/mp4";
+            sourceMP4.src = self.URL;
+            //
+            video.onloadeddata = function () {
+              var loop = function () {
+                for (var i = 0; i < self.onReadyCallbackList.length; i++) {
+                  self.onReadyCallbackList[i]();
+                }
+                var ctx = canvas.getContext('2d');
+                self.rotateImg(video, canvas, self.rotate, true);
+                if (self.onCanvasCallbackList.length > 0) {
+                  for (var i = 0; i < self.onCanvasCallbackList.length; i++) {
+                    self.onCanvasCallbackList[i](self.canvas, video);
+                  }
+                }
+                requestAnimationFrame(loop);
+              }
+              requestAnimationFrame(loop);
+            }
+            video.autoplay = 'autoplay';
+            video.muted = 'true';
+            video.play();
             break;
         }
       });
@@ -286,7 +327,7 @@ var Camera = (function () {
       var iRatio = parseInt(100 * iw / ih) / 100;
       var cRatio = parseInt(100 * cw / ch) / 100;
       this.ctx.save();
-      if (cw != ch && (cRatio != iRatio) && !this.autoScale) {
+      if (cw != ch && (cRatio != iRatio) && !this.autoScale && !isVideo) {
         ctx.translate(cw / 2, ch / 2);
         ctx.rotate(degrees * 0.0174532925199432957);
         ctx.translate(-ch / 2, -cw / 2);
@@ -320,7 +361,7 @@ var Camera = (function () {
     }
 
     buttonTrigger(ele, callback) {
-      if (this.camType != 0 && this.camType != jpgCam && this.camType != imgStreamCam) {
+      if (this.camType != 0 && this.camType != jpgCam && this.camType != imgStreamCam && this.camType != videoStreamCam) {
         var btn = document.createElement("BUTTON");
         btn.setAttribute("style", "background-color: #e0f0e0;position: fixed;z-index:2;top:5px;left:5px;font-size:96px");
         document.getElementsByTagName("body")[0].append(btn);

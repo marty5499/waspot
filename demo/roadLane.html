@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="../js/oo/camera.js"></script>
+    <script src="../js/opencv.js"></script>
+    <script src="../js/oo/imageFilter.js"></script>
+</head>
+
+<body>
+    <canvas id='c1' width=320 height=240></canvas>
+    <canvas id='c2' width=320 height=240></canvas>
+    <canvas id='c3' width=320 height=240></canvas>
+    <br><a href="index.html">回首頁</a>
+    <script>
+        var cam = new Camera('roadLane.mp4');
+        var vColor = { "low": [53, 1, 135, 0], "high": [131, 18, 255, 255], "erosion": 0, "dilation": 0 };
+        vColor = {"low":[77,1,131,0],"high":[146,56,255,255],"erosion":1,"dilation":1};
+        //cam.setRotate(90);
+        var roi = [60, 170, 180, 65];
+        cam.onCanvas('c1', function (canvas) {
+            let ctx = canvas.getContext('2d');
+            let ctx2 = c2.getContext('2d');
+            let ctx3 = c3.getContext('2d');
+            let src = cv.imread(canvas);
+            let dst = new cv.Mat();
+            let dst2 = new cv.Mat();
+            let dst3 = new cv.Mat();
+            // ROI
+            let rect = new cv.Rect(roi[0], roi[1], roi[2], roi[3]);
+            dst = src.roi(rect);
+            // Color Filter
+            cv.cvtColor(dst, dst, cv.COLOR_RGB2HSV, 0);
+            cv.imshow('c2', dst);
+            let low = new cv.Mat(dst.rows, dst.cols, dst.type(),
+                vColor.low);
+            let high = new cv.Mat(dst.rows, dst.cols, dst.type(),
+                vColor.high);
+            cv.inRange(dst, low, high, dst);
+
+            // Canny
+            cv.Canny(dst, dst2, 250, 250, 5, false);
+
+            //
+            let lines = new cv.Mat();
+            cv.HoughLines(dst2, lines, 1, Math.PI / 180,
+            35, 0, 0, 0,Math.PI);
+            cv.cvtColor(dst2, dst2, cv.COLOR_GRAY2RGB, 0);
+            // draw lines
+            for (let i = 0; i < lines.rows; ++i) {
+                let rho = lines.data32F[i * 2];
+                let theta = lines.data32F[i * 2 + 1];
+                let a = Math.cos(theta);
+                let b = Math.sin(theta);
+                let x0 = a * rho;
+                let y0 = b * rho;
+                let startPoint = { x: x0 - 1000 * b, y: y0 + 1000 * a };
+                let endPoint = { x: x0 + 1000 * b, y: y0 - 1000 * a };
+                var degree = 180 - theta * 180 / Math.PI;
+                if ((degree > 120 && degree < 145) ||
+                    (degree > 30 && degree < 60)) {
+                    cv.line(dst2, startPoint, endPoint, [255, 0, 0, 255]);
+                }
+            }
+            cv.imshow('c2', dst2);
+            lines.delete();
+
+            // output Canvas #3
+            ctx3.fillStyle = "#000000";
+            ctx3.fillRect(0, 0, c3.width, c3.height);
+            //var imgData = ctx2.getImageData(0, 0, c2.width, c2.height);
+            //ctx3.putImageData(imgData, roi[0], roi[1]);
+            //
+            src.delete();
+            dst.delete();
+            dst2.delete();
+        });
+    </script>
+</body>
+
+</html>
