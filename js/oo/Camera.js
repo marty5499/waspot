@@ -201,8 +201,7 @@ var Camera = (function () {
       var self = this;
       //check if it's callback function
       if (arguments.length == 1
-        && typeof eleOrId == 'object'
-        && typeof eleOrId['tagName'] == 'undefined') {
+        && typeof eleOrId == 'function') {
         callback = eleOrId;
         eleOrId = this.getCanvas();
       }
