@@ -48,10 +48,11 @@ class HotBlock {
       "varThreshold": 150,
       "detectShadows": false,
       "objMinSize": 3,
+      "lineWidth": 0,
+      "strokeStyle": '#ff0000',
       "filter": ["e1", "d1"]
     }, callback);
   }
-
 
   addBlock(jsonInfo, callback) {
     this.delBlock(jsonInfo['id']);
@@ -61,11 +62,15 @@ class HotBlock {
     var y2 = jsonInfo['area'][3];
     var tracking = new Hotspot(this.canvas, this.canvas2, true,
       x1, y1, x2, y1, x2, y2, x1, y2);
+    this.tracking = tracking;
     tracking.blockId = jsonInfo['id'];
     tracking.jsonInfo = jsonInfo;
-
     if (this.debug) {
       tracking.debug();
+    }
+    if (typeof jsonInfo['lineWidth'] != 'undefined'
+      || typeof jsonInfo['strokeStyle'] != 'undefined') {
+      tracking.setStroke(jsonInfo['lineWidth'], jsonInfo['strokeStyle']);
     }
     tracking.setCvProcess(this.filter);
 
