@@ -19,10 +19,12 @@
         //vColor = { "low": [77, 1, 131, 0], "high": [146, 56, 255, 255], "erosion": 1, "dilation": 1 };
         vColor = { "low": [138, 36, 187, 0], "high": [180, 255, 255, 255], "erosion": 0, "dilation": 5 };
         //cam.setRotate(90);
+        var roiX = 0, roiY = 100;
         var roiWidth = 320, roiHeight = 240;
-        var roi = [0, 0, roiWidth, roiHeight];
+        var roi = [0, 100, roiWidth - roiX, roiHeight - roiY];
         var lastLeftLane = {}, lastRightLane = {};
-
+        var y_checkPoint = 50;
+        var y_drawPoint = 30;
         cam.onCanvas('c1', function (canvas) {
             let ctx = canvas.getContext('2d');
             let ctx2 = c2.getContext('2d');
@@ -71,7 +73,7 @@
 
             drawLineArray(drawLines, roi[0], roi[1], roi[2], roi[3]);
             drawP = (lastLeftLane.x + lastRightLane.x) / 2;
-            drawCircle(ctx2, drawP, 150, 10, '#ffff00');
+            drawCircle(ctx2, drawP, y_drawPoint, 10, '#ffff00');
 
             low.delete();
             high.delete();
@@ -86,7 +88,6 @@
             var bb = {};
             var cc = {};
             var dd = {};
-            var py = 100;
             for (var i = 0; i < drawLines.length; i++) {
                 var rho = drawLines[i][0];
                 var theta = drawLines[i][1];
@@ -118,10 +119,10 @@
                 dd.y = y1 < dd.y ? y1 : dd.y;
             }
             lastLeftLane = rtnDot(
-                { x: -10 * roiWidth, y: py }, { x: 10 * roiWidth, y: py },
+                { x: -10 * roiWidth, y: y_checkPoint }, { x: 10 * roiWidth, y: y_checkPoint },
                 { x: aa.x, y: aa.y }, { x: bb.x, y: bb.y });
             lastRightLane = rtnDot(
-                { x: -10 * roiWidth, y: py }, { x: 10 * roiWidth, y: py },
+                { x: -10 * roiWidth, y: y_checkPoint }, { x: 10 * roiWidth, y: y_checkPoint },
                 { x: cc.x, y: cc.y }, { x: dd.x, y: dd.y });
         }
 
