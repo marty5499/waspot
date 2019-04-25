@@ -10,7 +10,6 @@
 <body>
     <canvas id='c1' width=320 height=240></canvas>
     <canvas id='c2' width=320 height=240></canvas>
-    <canvas id='c3' width=320 height=240></canvas>
     <br><a href="index.html">回首頁</a>
     <script>
         var cam = new Camera('roadLane2.mp4');
@@ -27,7 +26,6 @@
         cam.onCanvas('c1', function (canvas) {
             let ctx = canvas.getContext('2d');
             let ctx2 = c2.getContext('2d');
-            let ctx3 = c3.getContext('2d');
             let src = cv.imread(canvas);
             let dst = new cv.Mat();
             let dst2 = new cv.Mat();
@@ -42,13 +40,16 @@
             let low = new cv.Mat(dst.rows, dst.cols, dst.type(), vColor.low);
             let high = new cv.Mat(dst.rows, dst.cols, dst.type(), vColor.high);
             cv.inRange(dst, low, high, dst);
+
             // Canny
             cv.Canny(dst, dst, 250, 250, 5, false);
+
             //HoughLines
             let lines = new cv.Mat();
             let drawLines = [];
             cv.HoughLines(dst, lines, 1, Math.PI / 180, 35, 0, 0, 0, Math.PI);
             cv.cvtColor(dst, dst, cv.COLOR_GRAY2RGB, 0);
+
             // draw lines
             for (let i = 0; i < lines.rows; ++i) {
                 let rho = lines.data32F[i * 2];
@@ -57,30 +58,21 @@
                 let b = Math.sin(theta);
                 let x0 = a * rho;
                 let y0 = b * rho;
+                /* drawLine
                 vvv = 1000;
                 let startPoint = { x: x0 - vvv * b, y: y0 + vvv * a };
                 let endPoint = { x: x0 + vvv * b, y: y0 - vvv * a };
-                var degree = 180 - theta * 180 / Math.PI;
-                //if ((degree > 120 && degree < 145) || (degree > 30 && degree < 60)) {
-                cv.line(dst, startPoint, endPoint, [255, 0, 0, 255]);
+                //cv.line(dst, startPoint, endPoint, [255, 0, 0, 255]);
+                /**/
                 drawLines.push([rho, theta]);
-                //}
             }
             cv.imshow('c2', dst);
             lines.delete();
 
-            //*/ output Canvas #3
-            ctx3.fillStyle = "#000000";
-            ctx3.fillRect(0, 0, c3.width, c3.height);
-            //var imgData = ctx2.getImageData(0, 0, c2.width, c2.height);
-            //ctx3.putImageData(imgData, roi[0], roi[1]);
-            //[60, 170, 180, 65];
-            drawLineArray(drawLines, roi[0], roi[1], roi[2], roi[3], ctx3);
-            drawP = (lastLeftLane.x+lastRightLane.x)/2;
-            drawCircle(ctx, drawP, 180, 10, '#ffff00');
-            if (window.qq == 1) {
-                console.log(ff);
-            }
+            drawLineArray(drawLines, roi[0], roi[1], roi[2], roi[3]);
+            drawP = (lastLeftLane.x + lastRightLane.x) / 2;
+            drawCircle(ctx2, drawP, 150, 10, '#ffff00');
+
             low.delete();
             high.delete();
             src.delete();
@@ -88,8 +80,7 @@
             dst2.delete();
         });
 
-
-        function drawLineArray(drawLines, startX, startY, width, height, ctx) {
+        function drawLineArray(drawLines, startX, startY, width, height) {
             var v = roiHeight;
             var aa = {};
             var bb = {};
@@ -108,37 +99,36 @@
                 var y1 = parseInt(y0 + v * a);
                 var x2 = parseInt(x0 + v * b);
                 var y2 = parseInt(y0 - v * a);
+                // init coordinate
                 if (typeof aa.x == 'undefined') {
                     aa.x = x1; aa.y = y1;
                     bb.x = x2; bb.y = y2;
+                    cc.x = x2; cc.y = y2;
+                    dd.x = x1; dd.y = y1;
                 }
                 // left Lane
                 aa.x = x1 < aa.x ? x1 : aa.x;
                 aa.y = y1 > aa.y ? y1 : aa.y;
                 bb.x = x2 > bb.x ? x2 : bb.x;
                 bb.y = y2 < bb.y ? y2 : bb.y;
-                lastLeftLane = rtnDot(
-                    { x: -10 * roiWidth, y: py }, { x: 10 * roiWidth, y: py },
-                    { x: aa.x, y: aa.y }, { x: bb.x, y: bb.y });
-                if (typeof cc.x == 'undefined') {
-                    cc.x = x2; cc.y = y2;
-                    dd.x = x1; dd.y = y1;
-                }
                 // right Lane
                 cc.x = x2 > cc.x ? x2 : cc.x;
                 cc.y = y2 > cc.y ? y2 : cc.y;
                 dd.x = x1 > dd.x ? x1 : dd.x;
                 dd.y = y1 < dd.y ? y1 : dd.y;
-                lastRightLane = rtnDot(
-                    { x: -10 * roiWidth, y: py }, { x: 10 * roiWidth, y: py },
-                    { x: cc.x, y: cc.y }, { x: dd.x, y: dd.y });
             }
+            lastLeftLane = rtnDot(
+                { x: -10 * roiWidth, y: py }, { x: 10 * roiWidth, y: py },
+                { x: aa.x, y: aa.y }, { x: bb.x, y: bb.y });
+            lastRightLane = rtnDot(
+                { x: -10 * roiWidth, y: py }, { x: 10 * roiWidth, y: py },
+                { x: cc.x, y: cc.y }, { x: dd.x, y: dd.y });
         }
 
         function drawCircle(context, centerX, centerY, radius, color) {
             context.beginPath();
             context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-            context.fillStyle = 'green';
+            context.fillStyle = '#ffaaaa';
             context.fill();
             context.lineWidth = 5;
             context.strokeStyle = color;
@@ -147,14 +137,13 @@
 
         function drawLine(ctx, a, b) {
             ctx.beginPath();
-            ctx.fillStyle = 'green';
-            ctx.fill();
             ctx.lineWidth = 5;
             ctx.strokeStyle = '#003300';
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
             ctx.stroke();
         }
+
         //http://www.cnblogs.com/i-gps/archive/2012/06/19/2554992.html
         function rtnDot(a, b, c, d) {
             // 三角形abc 面积的2倍  
