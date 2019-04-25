@@ -76,8 +76,8 @@
             //ctx3.putImageData(imgData, roi[0], roi[1]);
             //[60, 170, 180, 65];
             drawLineArray(drawLines, roi[0], roi[1], roi[2], roi[3], ctx3);
-            drawCircle(ctx, lastLeftLane.x, lastLeftLane.y + 50, 10, '#ffff00');
-            drawCircle(ctx, lastRightLane.x, lastRightLane.y + 50, 10, '#ff00ff');
+            drawP = (lastLeftLane.x+lastRightLane.x)/2;
+            drawCircle(ctx, drawP, 180, 10, '#ffff00');
             if (window.qq == 1) {
                 console.log(ff);
             }
@@ -108,33 +108,30 @@
                 var y1 = parseInt(y0 + v * a);
                 var x2 = parseInt(x0 + v * b);
                 var y2 = parseInt(y0 - v * a);
-                if (theta * 180 / Math.PI < 90) {
-                    if (typeof aa.x == 'undefined') {
-                        aa.x = x1; aa.y = y1;
-                        bb.x = x2; bb.y = y2;
-                    }
-                    // left Lane
-                    aa.x = x1 < aa.x ? x1 : aa.x;
-                    aa.y = y1 > aa.y ? y1 : aa.y;
-                    bb.x = x2 > bb.x ? x2 : bb.x;
-                    bb.y = y2 < bb.y ? y2 : bb.y;
-                    lastLeftLane = rtnDot(
-                        { x: -10 * roiWidth, y: py }, { x: 10 * roiWidth, y: py },
-                        { x: aa.x, y: aa.y }, { x: bb.x, y: bb.y });
-                } else {
-                    if (typeof cc.x == 'undefined') {
-                        cc.x = x2; cc.y = y2;
-                        dd.x = x1; dd.y = y1;
-                    }
-                    // right Lane
-                    cc.x = x2 > cc.x ? x2 : cc.x;
-                    cc.y = y2 > cc.y ? y2 : cc.y;
-                    dd.x = x1 < dd.x ? x1 : dd.x;
-                    dd.y = y1 < dd.y ? y1 : dd.y;
-                    lastRightLane = rtnDot(
-                        { x: -10 * roiWidth, y: py }, { x: 10 * roiWidth, y: py },
-                        { x: cc.x, y: cc.y }, { x: dd.x, y: dd.y });
+                if (typeof aa.x == 'undefined') {
+                    aa.x = x1; aa.y = y1;
+                    bb.x = x2; bb.y = y2;
                 }
+                // left Lane
+                aa.x = x1 < aa.x ? x1 : aa.x;
+                aa.y = y1 > aa.y ? y1 : aa.y;
+                bb.x = x2 > bb.x ? x2 : bb.x;
+                bb.y = y2 < bb.y ? y2 : bb.y;
+                lastLeftLane = rtnDot(
+                    { x: -10 * roiWidth, y: py }, { x: 10 * roiWidth, y: py },
+                    { x: aa.x, y: aa.y }, { x: bb.x, y: bb.y });
+                if (typeof cc.x == 'undefined') {
+                    cc.x = x2; cc.y = y2;
+                    dd.x = x1; dd.y = y1;
+                }
+                // right Lane
+                cc.x = x2 > cc.x ? x2 : cc.x;
+                cc.y = y2 > cc.y ? y2 : cc.y;
+                dd.x = x1 > dd.x ? x1 : dd.x;
+                dd.y = y1 < dd.y ? y1 : dd.y;
+                lastRightLane = rtnDot(
+                    { x: -10 * roiWidth, y: py }, { x: 10 * roiWidth, y: py },
+                    { x: cc.x, y: cc.y }, { x: dd.x, y: dd.y });
             }
         }
 
