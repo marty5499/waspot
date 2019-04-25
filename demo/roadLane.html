@@ -13,11 +13,15 @@
     <canvas id='c3' width=320 height=240></canvas>
     <br><a href="index.html">回首頁</a>
     <script>
-        var cam = new Camera('roadLane.mp4');
+        var cam = new Camera('roadLane2.mp4');
+        var minX = 0, maxX = 0;
+        var minY = 0, maxY = 0;
         var vColor = { "low": [53, 1, 135, 0], "high": [131, 18, 255, 255], "erosion": 0, "dilation": 0 };
-        vColor = { "low": [77, 1, 131, 0], "high": [146, 56, 255, 255], "erosion": 1, "dilation": 1 };
+        //vColor = { "low": [77, 1, 131, 0], "high": [146, 56, 255, 255], "erosion": 1, "dilation": 1 };
+        vColor = { "low": [138, 36, 187, 0], "high": [180, 255, 255, 255], "erosion": 0, "dilation": 5 };
         //cam.setRotate(90);
-        var roi = [60, 170, 180, 65];
+        var roiWidth = 320, roiHeight = 240;
+        var roi = [0, 0, roiWidth, roiHeight];
         cam.onCanvas('c1', function (canvas) {
             let ctx = canvas.getContext('2d');
             let ctx2 = c2.getContext('2d');
@@ -55,10 +59,10 @@
                 let startPoint = { x: x0 - 1000 * b, y: y0 + 1000 * a };
                 let endPoint = { x: x0 + 1000 * b, y: y0 - 1000 * a };
                 var degree = 180 - theta * 180 / Math.PI;
-                if ((degree > 120 && degree < 145) || (degree > 30 && degree < 60)) {
-                    cv.line(dst, startPoint, endPoint, [255, 0, 0, 255]);
-                    drawLines.push([rho, theta]);
-                }
+                //if ((degree > 120 && degree < 145) || (degree > 30 && degree < 60)) {
+                cv.line(dst, startPoint, endPoint, [255, 0, 0, 255]);
+                drawLines.push([rho, theta]);
+                //}
             }
             cv.imshow('c2', dst);
             lines.delete();
@@ -69,11 +73,10 @@
             //var imgData = ctx2.getImageData(0, 0, c2.width, c2.height);
             //ctx3.putImageData(imgData, roi[0], roi[1]);
             //[60, 170, 180, 65];
-            drawLine(drawLines, roi[0], roi[1], roi[2], roi[3], ctx3);
+            drawLineArray(drawLines, roi[0], roi[1], roi[2], roi[3], ctx3);
             if (window.qq == 1) {
                 console.log(ff);
             }
-            //*/
             low.delete();
             high.delete();
             src.delete();
@@ -81,12 +84,36 @@
             dst2.delete();
         });
 
+        function drawCircle(context, centerX, centerY, radius) {
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+            context.fillStyle = 'green';
+            context.fill();
+            context.lineWidth = 5;
+            context.strokeStyle = '#003300';
+            context.stroke();
+        }
 
-        function drawLine(drawLines, startX, startY, width, height, ctx) {
+        function drawLine(ctx, a, b) {
+            ctx.beginPath();
+            ctx.fillStyle = 'green';
+            ctx.fill();
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = '#003300';
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+        }
+
+        function drawLineArray(drawLines, startX, startY, width, height, ctx) {
             ctx.beginPath();
             ctx.strokeStyle = "#FF0000";
             ctx.lineWidth = 3;
-            var v = 1000;
+            var v = 100 * roiWidth;
+            var aa = { x: v, y: v };
+            var bb = { x: 0, y: v };
+            var cc = { x: v, y: 0 };
+            var dd = { x: 0, y: 0 };
             for (var i = 0; i < drawLines.length; i++) {
                 var rho = drawLines[i][0];
                 var theta = drawLines[i][1];
@@ -98,19 +125,78 @@
                 var y1 = parseInt(y0 + v * a);
                 var x2 = parseInt(x0 + v * b);
                 var y2 = parseInt(y0 - v * a);
+                if (y1 > y2) {
+                    var gg = rtnDot(
+                        { x: 0, y: 0 }, { x: 320, y: 0 },
+                        { x: x1, y: y1 }, { x: x2, y: y2 });
+                    drawCircle(ctx, gg.x, gg.y, 10);
+                    console.log(gg);
+                }
 
                 x1 = startX + x1;
                 y1 = startY + y1;
                 x2 = startX + x2;
                 y2 = startY + y2;
 
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
+                x1 = x1 + v;
+                x2 = x2 + v;
+                y1 = y1 + v;
+                y2 = y2 + v;
+                if (y1 > y2) {
+                    aa.x = x1 < aa.x ? x1 : aa.x;
+                    aa.y = y1 > aa.y ? y1 : aa.y;
+                    bb.x = x2 > bb.x ? x2 : bb.x;
+                    bb.y = y2 < bb.y ? y2 : bb.y;
+                } else {
+                    dd.x = x1 < dd.x ? x1 : dd.x;
+                    dd.y = y1 < dd.y ? y1 : dd.y;
+                    cc.x = x2 > cc.x ? x2 : cc.x;
+                    cc.y = y2 > cc.y ? y2 : cc.y;
+                }
             }
+            //左下,右上
+
+            //console.log(aa, bb, cc, dd);
+            var vv = 1 * v;
+            var dot1 = rtnDot(aa, bb, { x: 2 * v, y: vv }, { x: -2 * v, y: vv });
+            var dot2 = rtnDot({ x: 2 * v, y: vv }, { x: -2 * v, y: vv }, cc, dd);
+            dot1.x = dot1.x / (v * 2) * roiWidth;
+            dot2.x = dot2.x / (v * 2) * roiWidth;
+            var start = { x: (dot1.x + dot2.x) / 2, y: 10 };
+            var end = { x: 160, y: 200 };
+            //drawCircle(ctx, start.x, 15, 10);
+            //drawLine(ctx, start, { x: dot1.x, y: 230 });
+            //drawLine(ctx, start, { x: dot2.x, y: 230 });
+            //console.log(start, end);
             ctx.stroke();
         }
-        
 
+        //http://www.cnblogs.com/i-gps/archive/2012/06/19/2554992.html
+        function rtnDot(a, b, c, d) {
+            // 三角形abc 面积的2倍  
+            var area_abc = (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x);
+            // 三角形abd 面积的2倍  
+            var area_abd = (a.x - d.x) * (b.y - d.y) - (a.y - d.y) * (b.x - d.x);
+            // 面积符号相同则两点在线段同侧,不相交 (对点在线段上的情况,本例当作不相交处理);  
+            if (area_abc * area_abd >= 0) {
+                return false;
+            }
+            // 三角形cda 面积的2倍  
+            var area_cda = (c.x - a.x) * (d.y - a.y) - (c.y - a.y) * (d.x - a.x);
+            // 三角形cdb 面积的2倍  
+            // 注意: 这里有一个小优化.不需要再用公式计算面积,而是通过已知的三个面积加减得出.  
+            var area_cdb = area_cda + area_abc - area_abd;
+            if (area_cda * area_cdb >= 0) {
+                return false;
+            }
+            //计算交点坐标  
+            var t = area_cda / (area_abd - area_abc);
+            var dx = t * (b.x - a.x),
+                dy = t * (b.y - a.y);
+            return { x: a.x + dx, y: a.y + dy };
+        }
+        //test code , {x:50,y:50} is ok
+        //console.log(rtnDot({x:0,y:100},{x:100,y:0},{x:100,y:100},{x:0,y:0}));
     </script>
 </body>
 
