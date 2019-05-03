@@ -236,7 +236,6 @@ class Hotspot {
 
     this.insideObjList = [];
     this._inside = false;
-
     let src = cv.matFromImageData(this.getImageData());
     let dstx = new this.cv.Mat();
     this.bs.apply(src, dstx, this.learningRate); //去背偵測物件
@@ -258,11 +257,13 @@ class Hotspot {
           break;
       }
     }
+    src.delete();
+
     if (this.showDectectCanvas) {
       cv.imshow('c2', dstx);
     }
+    
     if (!this.startDetect) {
-      src.delete()
       dstx.delete();
       return;
     }
@@ -270,18 +271,16 @@ class Hotspot {
     //skip firstDetect
     if (this.firstDetect) {
       this.firstDetect = false;
-      src.delete()
       dstx.delete();
       return;
     }
-
     var posList = this.imgFilter.enclosingCircleMaxOne(dstx, this.objMinSize);
+    dstx.delete();
+
+    //*
     if (posList.length == 0 && this.lastPos != false) {
       this.out(this.lastPos, this.targetCanvas);
       this.lastPos = false;
-      src.delete()
-      dstx.delete();
-      return;
     }
     for (var i = 0; i < posList.length; i++) {
       //偵測區域裡面的座標 x:0 ,y:0
@@ -307,8 +306,7 @@ class Hotspot {
         }
       }
     }
-    src.delete()
-    dstx.delete();
+    //*/
   }
 
   addResource(info) {
