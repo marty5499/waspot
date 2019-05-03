@@ -15,6 +15,7 @@ var Camera = (function () {
         camType = 0;
       }
       this.cnt = 0;
+      this.getImageFailure = false;
       this.onCanvasCallbackList = [];
       this.onReadyCallbackList = [];
       this.setCamType(camType);
@@ -183,11 +184,13 @@ var Camera = (function () {
       camSnapshotDelay = camSnapshotDelay * 1000;
       image.src = self.URL;
       image.addEventListener('error', function () {
+        self.getImageFailure = true;
         console.log('loading img failed.'); // you could try to load that resource again.
         image.src = self.URL + "?" + Math.random();
       });
 
       image.onload = function () {
+        self.getImageFailure = false;
         setTimeout(function () {
           if (self.onCanvasCallbackList.length > 0) {
             callback(image);
@@ -380,6 +383,10 @@ var Camera = (function () {
     }
 
     upload(url) {
+      if (this.getImageFailure) {
+        console.log("upload cancel...");
+        return;
+      }
       this.canvas.toBlob(
         function (blob) {
           var fd = new FormData();
