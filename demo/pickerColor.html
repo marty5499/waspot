@@ -84,7 +84,8 @@
     var filter = new ImageFilter(cv);
     //var camIdx = location.hash == '' ? 0 : location.hash.substring(1);
     //var cam  =new Camera(camIdx);
-    var cam  =new Camera('roadLane2.mp4');
+    var cam  =new Camera('http://cam25.local/jpg?0.001');
+    cam.setAutoScale(true);
     cam.onCanvas(canvasId, function (canvas) {
       test2(canvasId);
     });

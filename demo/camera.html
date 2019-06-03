@@ -1,6 +1,8 @@
 <html>
 
 <head>
+  <script src="../js/adapter.js"></script>
+  <script src="../js/webRTC.js"></script>
   <script src="../js/oo/Camera.js"></script>
 </head>
 
@@ -8,9 +10,11 @@
   <canvas id='c1' width=240 height=240 style='border:3px #cccccc solid;'></canvas>
   <canvas id='c2' width=320 height=240 style='border:3px #cccccc solid;'></canvas>
   <script>
-  // WebCam
+  //* WebCam
   new Camera(0).setRotate(0).onCanvas('c1');
   var cam = new Camera("http://cam22.local/jpg").setRotate(0).onCanvas('c2');
+  //*/
+
   /*
   var r = 0;
   setInterval(function(){
@@ -18,8 +22,9 @@
   },30);
   //*/
   
-  // WebRTC
-  //new Camera("ws://10.0.1.112:8889/rws/ws").onCanvas('c');
+  /*/ WebRTC
+  new Camera("ws://192.168.0.152:8889/rws/ws").onCanvas('c1');
+  //*/
 
   // ESP32 Cam ( stream )
   //new Camera("http://192.168.0.121:81/stream").onCanvas('c');

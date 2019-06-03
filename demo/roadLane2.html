@@ -12,17 +12,17 @@
     <canvas id='c2' width=320 height=240></canvas>
     <br><a href="index.html">回首頁</a>
     <script>
-        var cam = new Camera('roadLane2.mp4');
+        var cam = new Camera('http://cam25.local/jpg?0.001');
         var minX = 0, maxX = 0;
         var minY = 0, maxY = 0;
         var vColor = { "low": [53, 1, 135, 0], "high": [131, 18, 255, 255], "erosion": 0, "dilation": 0 };
         //vColor = { "low": [77, 1, 131, 0], "high": [146, 56, 255, 255], "erosion": 1, "dilation": 1 };
         vColor = { "low": [138, 36, 187, 0], "high": [180, 255, 255, 255], "erosion": 0, "dilation": 5 };
-        vColor = { "low": [1, 1, 1, 0], "high": [180, 145, 88, 255], "erosion": 0, "dilation": 12 };
+        vColor = {"low":[1,62,1,0],"high":[180,231,108,255],"erosion":0,"dilation":4};
         //cam.setRotate(90);
-        var roiX = 0, roiY = 100;
+        var roiX = 0, roiY = 70;
         var roiWidth = 320, roiHeight = 240;
-        var roi = [0, 100, roiWidth - roiX, roiHeight - roiY];
+        var roi = [roiX, roiY, roiWidth - roiX, roiHeight - roiY];
         var lastLeftLane = {}, lastRightLane = {};
         var y_checkPoint = 50;
         var y_drawPoint = 30;

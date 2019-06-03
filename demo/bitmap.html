@@ -1,0 +1,50 @@
+<html>
+<canvas id='canvas' width='240' height='320'></canvas>
+<script>
+    img = new Image();
+    img.src = './nana.png';
+    img.onload = function () {
+        draw(this);
+    };
+
+    function draw(img) {
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var data = imageData.data;
+
+        var toByteArray = function () {
+            var byteArray = "{";
+            var j = 0;
+            for (var i = 0; i < data.length; i += 4) {
+                var red = data[i];
+                var green = data[i + 1];
+                var blue = data[i + 2];
+                var d = (((red & 0xF8) << 8) + ((green & 0xFC) << 3) + (blue >> 3));
+                d = '0000' + d.toString(16);
+                d = d.substring(d.length - 4);
+
+                d = d.substring(2, 4) + d.substring(0, 2);
+
+                if (j++ == 10) {
+                    j = 1;
+                    byteArray += '\n';
+                }
+                byteArray += '0x' + d;
+                if ((i + 4) != data.length) {
+                    byteArray += ',';
+                }
+                data[i] = red; // red
+                data[i + 1] = green; // green
+                data[i + 2] = blue; // blue                
+            }
+            ctx.putImageData(imageData, 0, 0);
+            byteArray += '};';
+            console.log(byteArray);
+        };
+        toByteArray();
+    }
+</script>
+
+</html>
