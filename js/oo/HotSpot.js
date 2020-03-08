@@ -76,7 +76,7 @@ class Hotspot {
     this.scanY = Math.min.apply(null, [y1, y2, y3, y4]);
     this.scanWidth = Math.max.apply(null, [x1, x2, x3, x4]) - this.scanX;
     this.scanHeight = Math.max.apply(null, [y1, y2, y3, y4]) - this.scanY;
-    this.detectCB = this.in = this.out = function (pos, canvas) { };
+    this.detectCB = this.in = this.out = function (pos, canvas) {};
     this.startDetect = false;
     this.firstDetect = true;
     this.pause = false;
@@ -124,6 +124,9 @@ class Hotspot {
       if (typeof this.filter == 'undefined') {
         this.filter = ['e3', 'g7', 'd15'];
       }
+      if (this.bs != null) {
+        this.bs.delete();
+      }
       this.bs = new cv.BackgroundSubtractorMOG2(history, varThreshold, detectShadows);
       self.startDetect = true;
     }
@@ -135,6 +138,9 @@ class Hotspot {
 
   reset() {
     var self = this;
+    if (this.bs != null) {
+      this.bs.delete();
+    }
     this.bs = new cv.BackgroundSubtractorMOG2(500, 160, false);
     this.lastPos = false;
     self.firstDetect = true;
@@ -177,6 +183,9 @@ class Hotspot {
     this.cv = imgFilter.getOpenCV();
     let src = cv.matFromImageData(this.getImageData());
     let dstx = new this.cv.Mat();
+    if (this.bs != null) {
+      this.bs.delete();
+    }
     this.bs = new cv.BackgroundSubtractorMOG2(100, 500, false);
     src.delete()
     dstx.delete();
@@ -262,7 +271,7 @@ class Hotspot {
     if (this.showDectectCanvas) {
       cv.imshow('c2', dstx);
     }
-    
+
     if (!this.startDetect) {
       dstx.delete();
       return;
