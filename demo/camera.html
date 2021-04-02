@@ -5,12 +5,12 @@
 </head>
 
 <body>
-  <canvas id='c1' width=240 height=240 style='border:3px #cccccc solid;'></canvas>
-  <canvas id='c2' width=320 height=240 style='border:3px #cccccc solid;'></canvas>
+  <canvas id='c1' width=800 height=600 style='border:3px #cccccc solid;'></canvas>
+  <canvas id='c2' width=800 height=600 style='border:3px #cccccc solid;'></canvas>
   <script>
   // WebCam
   new Camera(0).setRotate(0).onCanvas('c1');
-  var cam = new Camera("http://cam22.local/jpg").setRotate(0).onCanvas('c2');
+  var cam = new Camera(1).setRotate(0).onCanvas('c2');
   /*
   var r = 0;
   setInterval(function(){
