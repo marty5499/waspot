@@ -1,35 +1,237 @@
-// the following functions are based off of the pseudocode
-// found on www.easyrgb.com
-function hsvTolab(h, s, v) {
-  var rgb = hsvToRgb(h,s,v)
-  return  rgb2lab(rgb)
-}
 
-function hsv2Rgb(h, s, v) {
-  var r, g, b;
+const RGB_MAX = 255
+const HUE_MAX = 360
+const SV_MAX = 100
 
-  var i = Math.floor(h * 6);
-  var f = h * 6 - i;
-  var p = v * (1 - s);
-  var q = v * (1 - f * s);
-  var t = v * (1 - (1 - f) * s);
+var colorsys = window.colorsys = {}
 
-  switch (i % 6) {
-    case 0: r = v, g = t, b = p; break;
-    case 1: r = q, g = v, b = p; break;
-    case 2: r = p, g = v, b = t; break;
-    case 3: r = p, g = q, b = v; break;
-    case 4: r = t, g = p, b = v; break;
-    case 5: r = v, g = p, b = q; break;
+colorsys.rgb2Hsl = function (r, g, b) {
+  if (typeof r === 'object') {
+    const args = r
+    r = args.r; g = args.g; b = args.b;
+  }
+  // It converts [0,255] format, to [0,1]
+  r = r % RGB_MAX / parseFloat(RGB_MAX)
+  g = g % RGB_MAX / parseFloat(RGB_MAX)
+  b = b % RGB_MAX / parseFloat(RGB_MAX)
+
+  var max = Math.max(r, g, b)
+  var min = Math.min(r, g, b)
+  var h
+  var s
+  var l = (max + min) / 2
+
+  if (max === min) {
+    h = s = 0 // achromatic
+  } else {
+    var d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0)
+        break
+      case g:
+        h = (b - r) / d + 2
+        break
+      case b:
+        h = (r - g) / d + 4
+        break
+    }
+    h /= 6
   }
 
-  return [ r * 255, g * 255, b * 255 ];
+  return [{
+    h: Math.floor(h * HUE_MAX),
+    s: Math.floor(s * SV_MAX),
+    l: Math.floor(l * SV_MAX)
+  }]
 }
 
-function lab2rgb(lab){
-  var y = (lab[0] + 16) / 116,
-      x = lab[1] / 500 + y,
-      z = y - lab[2] / 200,
+colorsys.rgb_to_hsl = colorsys.rgb2Hsl
+colorsys.rgbToHsl = colorsys.rgb2Hsl
+
+colorsys.rgb2Hsv = function (r, g, b) {
+  if (typeof r === 'object') {
+    const args = r
+    r = args.r; g = args.g; b = args.b;
+  }
+
+  // It converts [0,255] format, to [0,1]
+  r = r % RGB_MAX / parseFloat(RGB_MAX)
+  g = g % RGB_MAX / parseFloat(RGB_MAX)
+  b = b % RGB_MAX / parseFloat(RGB_MAX)
+
+  var max = Math.max(r, g, b)
+  var min = Math.min(r, g, b)
+  var h
+  var s
+  var v = max
+
+  var d = max - min
+
+  s = max === 0 ? 0 : d / max
+
+  if (max === min) {
+    h = 0 // achromatic
+  } else {
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0)
+        break
+      case g:
+        h = (b - r) / d + 2
+        break
+      case b:
+        h = (r - g) / d + 4
+        break
+    }
+    h /= 6
+  }
+
+  return [{
+    h: Math.floor(h * HUE_MAX),
+    s: Math.floor(s * SV_MAX),
+    v: Math.floor(v * SV_MAX)
+  }]
+}
+
+colorsys.rgb_to_hsv = colorsys.rgb2Hsv
+colorsys.rgbToHsv = colorsys.rgb2Hsv
+
+colorsys.hsl2Rgb = function (h, s, l) {
+  if (typeof r === 'object') {
+    const args = h
+    h = args.h; s = args.s; l = args.l;
+  }
+
+  var r, g, b
+
+  h = h === HUE_MAX ? 1 : (h % HUE_MAX / parseFloat(HUE_MAX) * 6)
+  s = s === SV_MAX ? 1 : (s % SV_MAX / parseFloat(SV_MAX))
+  l = l === SV_MAX ? 1 : (l % SV_MAX / parseFloat(SV_MAX))
+
+  if (s === 0) {
+    r = g = b = l // achromatic
+  } else {
+    var hue2rgb = function hue2rgb (p, q, t) {
+      if (t < 0) t += 1
+      if (t > 1) t -= 1
+      if (t < 1 / 6) return p + (q - p) * 6 * t
+      if (t < 1 / 2) return q
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
+      return p
+    }
+
+    var q = l < 0.5 ? l * (1 + s) : l + s - l * s
+    var p = 2 * l - q
+    r = hue2rgb(p, q, h + 1 / 3)
+    g = hue2rgb(p, q, h)
+    b = hue2rgb(p, q, h - 1 / 3)
+  }
+  return { r: Math.round(r * RGB_MAX), g: Math.round(g * RGB_MAX), b: Math.round(b * RGB_MAX) }
+}
+
+colorsys.hsl_to_rgb = colorsys.hsl2Rgb
+colorsys.hslToRgb = colorsys.hsl2Rgb
+
+colorsys.hsv2Rgb = function (h, s, v) {
+  if (typeof h === 'object') {
+    const args = h
+    h = args.h; s = args.s; v = args.v;
+  }
+
+  h = h === HUE_MAX ? 1 : (h % HUE_MAX / parseFloat(HUE_MAX) * 6)
+  s = s === SV_MAX ? 1 : (s % SV_MAX / parseFloat(SV_MAX))
+  v = v === SV_MAX ? 1 : (v % SV_MAX / parseFloat(SV_MAX))
+
+  var i = Math.floor(h)
+  var f = h - i
+  var p = v * (1 - s)
+  var q = v * (1 - f * s)
+  var t = v * (1 - (1 - f) * s)
+  var mod = i % 6
+  var r = [v, q, p, p, t, v][mod]
+  var g = [t, v, v, q, p, p][mod]
+  var b = [p, p, t, v, v, q][mod]
+
+  return { r: Math.round(r * RGB_MAX), g: Math.round(g * RGB_MAX), b: Math.round(b * RGB_MAX) }
+}
+
+colorsys.hsv_to_rgb = colorsys.hsv2Rgb
+colorsys.hsvToRgb = colorsys.hsv2Rgb
+
+colorsys.rgb2Hex = function (r, g, b) {
+  if (typeof r === 'object') {
+    const args = r
+    r = args.r; g = args.g; b = args.b;
+  }
+  r = Math.round(r).toString(16)
+  g = Math.round(g).toString(16)
+  b = Math.round(b).toString(16)
+
+  r = r.length === 1 ? '0' + r : r
+  g = g.length === 1 ? '0' + g : g
+  b = b.length === 1 ? '0' + b : b
+
+  return '#' + r + g + b
+}
+
+colorsys.rgb_to_hex = colorsys.rgb2Hex
+colorsys.rgbToHex = colorsys.rgb2Hex
+
+colorsys.hex2Rgb = function (hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null
+}
+
+colorsys.hex_to_rgb = colorsys.hex2Rgb
+colorsys.hexToRgb = colorsys.hex2Rgb
+
+colorsys.hsv2Hex = function (h, s, v) {
+  var rgb = colorsys.hsv2Rgb(h, s, v)
+  return colorsys.rgb2Hex(rgb.r, rgb.g, rgb.b)
+}
+
+colorsys.hsv_to_hex = colorsys.hsv2Hex
+colorsys.hsvToHex = colorsys.hsv2Hex
+
+colorsys.hex2Hsv = function (hex) {
+  var rgb = colorsys.hex2Rgb(hex)
+  return colorsys.rgb2Hsv(rgb.r, rgb.g, rgb.b)[0]
+}
+
+colorsys.hex_to_hsv = colorsys.hex2Hsv
+colorsys.hexToHsv = colorsys.hex2Hsv
+
+colorsys.hsl2Hex = function (h, s, l) {
+  var rgb = colorsys.hsl2Rgb(h, s, l)
+  return colorsys.rgb2Hex(rgb.r, rgb.g, rgb.b)
+}
+
+colorsys.hsl_to_hex = colorsys.hsl2Hex
+colorsys.hslToHex = colorsys.hsl2Hex
+
+colorsys.hex2Hsl = function (hex) {
+  var rgb = colorsys.hex2Rgb(hex)
+  return colorsys.rgb2Hsl(rgb.r, rgb.g, rgb.b)[0]
+}
+
+colorsys.hex_to_hsl = colorsys.hex2Hsl
+colorsys.hexToHsl = colorsys.hex2Hsl
+
+
+function hsv2rgb(h,s,v){
+  return colorsys.hsv2Rgb(h,s,v)
+}
+
+function lab2rgb(ll,aa,bb){
+  var y = (ll + 16) / 116,
+      x = aa / 500 + y,
+      z = y - bb / 200,
       r, g, b;
 
   x = 0.95047 * ((x * x * x > 0.008856) ? x * x * x : (x - 16/116) / 7.787);
@@ -50,10 +252,12 @@ function lab2rgb(lab){
 }
 
 
-function rgb2lab(rgb){
-  var r = rgb[0] / 255,
-      g = rgb[1] / 255,
-      b = rgb[2] / 255,
+
+
+function rgb2lab(R,G,B){
+  var r = R / 255,
+      g =G / 255,
+      b = B / 255,
       x, y, z;
 
   r = (r > 0.04045) ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
@@ -69,25 +273,4 @@ function rgb2lab(rgb){
   z = (z > 0.008856) ? Math.pow(z, 1/3) : (7.787 * z) + 16/116;
 
   return [(116 * y) - 16, 500 * (x - y), 200 * (y - z)]
-}
-
-// calculate the perceptual distance between colors in CIELAB
-// https://github.com/THEjoezack/ColorMine/blob/master/ColorMine/ColorSpaces/Comparisons/Cie94Comparison.cs
-
-function deltaE(labA, labB){
-  var deltaL = labA[0] - labB[0];
-  var deltaA = labA[1] - labB[1];
-  var deltaB = labA[2] - labB[2];
-  var c1 = Math.sqrt(labA[1] * labA[1] + labA[2] * labA[2]);
-  var c2 = Math.sqrt(labB[1] * labB[1] + labB[2] * labB[2]);
-  var deltaC = c1 - c2;
-  var deltaH = deltaA * deltaA + deltaB * deltaB - deltaC * deltaC;
-  deltaH = deltaH < 0 ? 0 : Math.sqrt(deltaH);
-  var sc = 1.0 + 0.045 * c1;
-  var sh = 1.0 + 0.015 * c1;
-  var deltaLKlsl = deltaL / (1.0);
-  var deltaCkcsc = deltaC / (sc);
-  var deltaHkhsh = deltaH / (sh);
-  var i = deltaLKlsl * deltaLKlsl + deltaCkcsc * deltaCkcsc + deltaHkhsh * deltaHkhsh;
-  return i < 0 ? 0 : Math.sqrt(i);
 }
