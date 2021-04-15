@@ -3,6 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=b1ada5fdae699e60af615c060e786d60"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
+  <script src="https://blocklypro.webduino.io/node_modules/webduino-module-mqtt/mqttClient.min.js"></script>
+
   <script src="../js/oo/Camera.js"></script>
   <script src="../js/opencv.js"></script>
   <style>
@@ -68,6 +73,25 @@
   <div>setting: <input id='set' type="input" size='30'>
   </div>
   <script>
+
+
+var webduinoBroadcastor;
+(async function () {
+    if (!webduinoBroadcastor) {
+        webduinoBroadcastor = new webduino.module.mqttClient();
+        await webduinoBroadcastor.connect();
+      }
+}());
+
+
+      function mqttSend(msg){
+        webduinoBroadcastor.send({
+          topic: '__color__',
+          message: msg
+        });
+      }
+
+
     var canvasId = 'c1';
     var cam  =new Camera(0);
     cam.setAutoScale(true);
@@ -97,6 +121,7 @@
       var str = JSON.stringify(range);
       str = str.replace('[','(').replace(']',')')
       document.getElementById('set').value = str;
+      mqttSend(str)
     }
 
     function processImg(id) {
